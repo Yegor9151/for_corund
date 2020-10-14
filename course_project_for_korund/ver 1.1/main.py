@@ -3,12 +3,12 @@ from datetime import datetime
 
 from support import date_type
 
-# import pandas as pd
+import pandas as pd
 
 # INIT DATABASE
-# df = pd.DataFrame(
-#     columns=['ФИО', 'Возраст', 'Дата рождения', 'Языки программирования', 'Дата регистрации']
-# )
+df = pd.DataFrame(
+    columns=['ФИО', 'Возраст', 'Дата рождения', 'Интересы', 'Дата регистрации']
+)
 
 # INIT MASTER
 root = Tk()
@@ -35,25 +35,25 @@ def get_data():
     age = (data['Дата регистрации'] - data['Дата рождения']) / 365.25  # calculate age
     data['Возраст'] = age.days  # days out
 
-    language_list = []
-    booleans_lang = bool_py, bool_ja, bool_1c, bool_an, bool_no
-    languages_name = 'Python', 'Java', '1C', 'Другой', 'Никакой'
+    interest_list = []
+    booleans_interest = bool_py, bool_ja, bool_1c, bool_an, bool_no
+    interest_name = 'наука', 'техника', 'икусство', 'путешествие', 'другое'
     i = 0
-    while i < len(booleans_lang):
-        bool_language = booleans_lang[i]
-        if bool_language.get() == 1:
-            language_list.append(languages_name[i])
+    while i < len(booleans_interest):
+        bool_interest = booleans_interest[i]
+        if bool_interest.get() == 1:
+            interest_list.append(interest_name[i])
         i += 1
 
-    data['Языки программирования'] = language_list
+    data['Интересы'] = interest_list
 
     # CLEAN STRINGS
     ent_name.delete(0, END)
     ent_b_date.delete(0, END)
 
     # COLLECT
-    # global df
-    # df = df.append(data, ignore_index=True)
+    global df
+    df = df.append(data, ignore_index=True)
 
 
 def base():
@@ -96,26 +96,21 @@ ent_b_date = Entry(master=base_frame, width=40)
 # CHOICE LANGUAGE
 lang_frame = Frame(master=root)
 lab_languages = Label(master=lang_frame, text='Выберите языки которые знаете или изучаете:')
+
+
+def create_flag(master, name):
+    boolean = BooleanVar()
+    boolean.set(0)
+    flag = Checkbutton(master=master, text=name, variable=boolean, onvalue=1, offvalue=0)
+    return flag, boolean
+
+
 # FLAGS OF LANGUAGES
-bool_py = BooleanVar()
-bool_py.set(0)
-flag_py = Checkbutton(master=lang_frame, text='Python', variable=bool_py, onvalue=1, offvalue=0)
-
-bool_ja = BooleanVar()
-bool_ja.set(0)
-flag_ja = Checkbutton(master=lang_frame, text='Java', variable=bool_ja, onvalue=1, offvalue=0)
-
-bool_1c = BooleanVar()
-bool_1c.set(0)
-flag_1c = Checkbutton(master=lang_frame, text='1C', variable=bool_1c, onvalue=1, offvalue=0)
-
-bool_an = BooleanVar()
-bool_an.set(0)
-flag_an = Checkbutton(master=lang_frame, text='Другой', variable=bool_an, onvalue=1, offvalue=0)
-
-bool_no = BooleanVar()
-bool_no.set(0)
-flag_no = Checkbutton(master=lang_frame, text='Никакой', variable=bool_no, onvalue=1, offvalue=0)
+flag_py, bool_py = create_flag(master=lang_frame, name='наука')
+flag_ja, bool_ja = create_flag(master=lang_frame, name='техника')
+flag_1c, bool_1c = create_flag(master=lang_frame, name='искусство')
+flag_an, bool_an = create_flag(master=lang_frame, name='путешествие')
+flag_no, bool_no = create_flag(master=lang_frame, name='другое')
 
 # BUTTON GET DATA
 but_frame = Frame(master=root)
