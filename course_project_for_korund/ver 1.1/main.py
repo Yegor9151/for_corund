@@ -25,13 +25,19 @@ def collect_data():
     age = (data['Дата регистрации'] - data['Дата рождения']) / 365.25  # calculate age
     data['Возраст'] = age.days  # days out
 
+    if var.get() == 0:
+        data['Пол'] = 'Мужской'
+    elif var.get() == 1:
+        data['Пол'] = 'Женский'
+
     interest_list = flags_data()
     data['Интересы'] = ', '.join(interest_list)
 
     global df
     df = df.append(data, ignore_index=True)
+    df = df.drop_duplicates(subset=columns[:-2], keep='last')
 
-    # clean_data()
+    clean_data()
 
 
 def clean_data():
@@ -65,8 +71,16 @@ def top_open():
     ent_b_date.grid(row=1, column=1, sticky=W, padx=10)
 
 
-def interest_open():
-    interest_frame.pack(side=TOP, anchor=W)
+def radio_open():
+    radio_frame.pack(side=TOP, anchor=W)
+    lbl_sex.pack(side=TOP, anchor=W)
+
+    male.pack(side=LEFT, anchor=W)
+    female.pack(side=LEFT, anchor=W)
+
+
+def flags_open():
+    interest_frame.pack(side=TOP, anchor=W, pady=10)
 
     interest_lbl.pack(side=TOP, anchor=W)
 
@@ -92,12 +106,12 @@ def create_flag(master, name):
 
 
 # INIT DATABASE
-columns = ['ФИО', 'Возраст', 'Дата рождения', 'Интересы', 'Дата регистрации']
+columns = ['ФИО', 'Пол', 'Возраст', 'Дата рождения', 'Интересы', 'Дата регистрации']
 df = pd.DataFrame(columns=columns)
 
 # INIT MASTER
 root = Tk()
-root.title('Регистрация клиентов')  # rename master window
+root.title('Лист регистрации')  # rename master window
 
 # BASE DATA
 top_frame = Frame(master=root)
@@ -107,6 +121,16 @@ ent_name = Entry(master=top_frame, width=40)
 # STRING BIRTH DATE
 lbl_b_date = Label(master=top_frame, text='Введите дату рождения:')
 ent_b_date = Entry(master=top_frame, width=40)
+
+# SEX RADIO BUTTONS
+radio_frame = Frame(master=root)
+# CREATE SEX BUTTONS
+lbl_sex = Label(master=radio_frame, text='Выберите пол:')
+
+var = IntVar()
+var.set(0)
+male = Radiobutton(master=radio_frame, text='Мужской', variable=var, value=0)
+female = Radiobutton(master=radio_frame, text='Женский', variable=var, value=1)
 
 # CHOICE INTEREST
 interest_frame = Frame(master=root)
@@ -132,9 +156,9 @@ but_close = Button(master=but_frame, text='Close', width=10, command=root.destro
 
 # OPEN PEACES
 top_open()
-interest_open()
+radio_open()
+flags_open()
 buttons_open()
 
 # OPEN WINDOWS
 root.mainloop()
-df = df.drop_duplicates(subset=columns[:-2], keep='last')
