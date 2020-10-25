@@ -17,21 +17,21 @@ def collect_data():
     data['ФИО'] = name  # collect in dict
 
     b_date = ent_b_date.get()  # get birth date
-    data['Дата рождения'] = date_type(b_date)  # collect in dict
+    data['дата рождения'] = date_type(b_date)  # collect in dict
 
     datetime_now = datetime.now()  # get today date
-    data['Дата регистрации'] = datetime_now.date()  # get date only
+    data['дата регистрации'] = datetime_now.date()  # get date only
 
-    age = (data['Дата регистрации'] - data['Дата рождения']) / 365.25  # calculate age
-    data['Возраст'] = age.days  # days out
+    age = (data['дата регистрации'] - data['дата рождения']) / 365.25  # calculate age
+    data['возраст'] = age.days  # days out
 
     if var.get() == 0:
-        data['Пол'] = 'Мужской'
+        data['пол'] = 'Мужской'
     elif var.get() == 1:
-        data['Пол'] = 'Женский'
+        data['пол'] = 'Женский'
 
     interest_list = flags_data()
-    data['Интересы'] = ', '.join(interest_list)
+    data['интересы'] = ', '.join(interest_list)
 
     global df
     df = df.append(data, ignore_index=True)
@@ -106,7 +106,7 @@ def create_flag(name):
 
 
 # INIT DATABASE
-columns = ['ФИО', 'Пол', 'Возраст', 'Дата рождения', 'Интересы', 'Дата регистрации']
+columns = 'ФИО', 'пол', 'возраст', 'дата рождения', 'интересы', 'дата регистрации'
 df = pd.DataFrame(columns=columns)
 
 # INIT MASTER
