@@ -33,14 +33,18 @@ def collect_data():
     interest_list = flags_data()
     data['интересы'] = ', '.join(interest_list)
 
+    # clean_text()
+
     global df
     df = df.append(data, ignore_index=True)
-    df = df.drop_duplicates(subset=columns[:-2], keep='last')
-
-    clean_data()
 
 
-def clean_data():
+def add_in_bd(data):
+    pass
+
+
+def clean_text():
+    """Очищает текстовые строки"""
     ent_name.delete(0, END)
     ent_b_date.delete(0, END)
     i = 0
@@ -50,18 +54,28 @@ def clean_data():
 
 
 def flags_data():
+    """Собирает отмеченные интересы"""
     interest_list = []
     i = 0
     while i < len(booleans_interest):
-        bool_interest = booleans_interest[i]
-        if bool_interest.get() == 1:
+        if booleans_interest[i].get() == 1:
             interest_list.append(interest_names[i])
         i += 1
 
     return interest_list
 
 
-def top_open():
+def create_flag(name):
+    """Создант флаг"""
+    boolean = BooleanVar()
+    boolean.set(0)
+    flag = Checkbutton(master=interest_frame, text=name, variable=boolean,
+                       onvalue=1, offvalue=0)
+    return flag, boolean
+
+
+# FUNCTIONS OPEN
+def text_open():
     top_frame.pack(side=TOP, anchor=W, padx=10, pady=10)
 
     lbl_name.grid(row=0, column=0, sticky=E)
@@ -97,17 +111,9 @@ def buttons_open():
     but_close.pack(side=LEFT, padx=10, pady=10)
 
 
-def create_flag(name):
-    boolean = BooleanVar()
-    boolean.set(0)
-    flag = Checkbutton(master=interest_frame, text=name, variable=boolean,
-                       onvalue=1, offvalue=0)
-    return flag, boolean
-
-
 # INIT DATABASE
 columns = 'ФИО', 'пол', 'возраст', 'дата рождения', 'интересы', 'дата регистрации'
-df = pd.DataFrame(columns=columns)
+df = pd.read_csv('users.csv', index_col=0)
 
 # INIT MASTER
 root = Tk()
@@ -155,10 +161,14 @@ but_data = Button(master=but_frame, bg='#cbffc3', text='Save', width=10, command
 but_close = Button(master=but_frame, bg='#ffcccb', text='Close', width=10, command=root.destroy)
 
 # OPEN PEACES
-top_open()
+text_open()
 radio_open()
 flags_open()
 buttons_open()
 
 # OPEN WINDOWS
 root.mainloop()
+
+# CHECK DF
+df = df.drop_duplicates(subset=columns[:-2], keep='last')
+df.to_csv('users.csv', index=True)
