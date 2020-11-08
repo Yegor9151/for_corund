@@ -111,8 +111,7 @@ def buttons_open():
     but_close.pack(side=LEFT, padx=10, pady=10)
 
 
-# INIT DATABASE
-columns = 'ФИО', 'пол', 'возраст', 'дата рождения', 'интересы', 'дата регистрации'
+# OPEN DATABASE
 df = pd.read_csv('users.csv', index_col=0)
 
 # INIT MASTER
@@ -170,5 +169,5 @@ buttons_open()
 root.mainloop()
 
 # CHECK DF
-df = df.drop_duplicates(subset=columns[:-2], keep='last')
+df = df.drop_duplicates(subset=df.columns[:-2], keep='last')
 df.to_csv('users.csv', index=True)
