@@ -41,6 +41,7 @@ def add_in_db(data, name):
     df = df.append(data, ignore_index=True)
 
     # CHECK DF
+    df = df.dropna(how='all')
     df = df.drop_duplicates(subset=df.columns[:-2], keep='last')
 
     # REWRITE BD
