@@ -1,4 +1,5 @@
 from datetime import date
+import pandas as pd
 
 
 # FUNCTIONS
@@ -26,3 +27,21 @@ def date_type(date_string):
     # FINISH
     day, month, year = date_list  # split list on variables
     return date(year, month, day)  # convert and return
+
+
+def read_db(name):
+    # OPEN DATABASE
+    return pd.read_csv(name, index_col=0)
+
+
+def add_in_db(data, name):
+    # OPEN DATABASE
+    df = read_db(name)
+
+    df = df.append(data, ignore_index=True)
+
+    # CHECK DF
+    df = df.drop_duplicates(subset=df.columns[:-2], keep='last')
+
+    # REWRITE BD
+    df.to_csv(name, index=True)

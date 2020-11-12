@@ -1,46 +1,34 @@
 from tkinter import *
 from datetime import datetime
 
-from support import date_type
-
-import pandas as pd
+from support import *
 
 
 def collect_data():
     """get data and collect it in data base"""
 
-    # BASE VARIABLES
-    data = {}  # init dict for data
-
     # DATA FROM STRINGS
     name = ent_name.get()  # get name
-    data['ФИО'] = name  # collect in dict
+    data_dict['ФИО'] = name  # collect in dict
 
     b_date = ent_b_date.get()  # get birth date
-    data['дата рождения'] = date_type(b_date)  # collect in dict
+    data_dict['дата рождения'] = date_type(b_date)  # collect in dict
 
     datetime_now = datetime.now()  # get today date
-    data['дата регистрации'] = datetime_now.date()  # get date only
+    data_dict['дата регистрации'] = datetime_now.date()  # get date only
 
-    age = (data['дата регистрации'] - data['дата рождения']) / 365.25  # calculate age
-    data['возраст'] = age.days  # days out
+    age = (data_dict['дата регистрации'] - data_dict['дата рождения']) / 365.25  # calculate age
+    data_dict['возраст'] = age.days  # days out
 
     if var.get() == 0:
-        data['пол'] = 'Мужской'
+        data_dict['пол'] = 'Мужской'
     elif var.get() == 1:
-        data['пол'] = 'Женский'
+        data_dict['пол'] = 'Женский'
 
     interest_list = flags_data()
-    data['интересы'] = ', '.join(interest_list)
+    data_dict['интересы'] = ', '.join(interest_list)
 
     # clean_text()
-
-    global df
-    df = df.append(data, ignore_index=True)
-
-
-def add_in_bd(data):
-    pass
 
 
 def clean_text():
@@ -111,9 +99,6 @@ def buttons_open():
     but_close.pack(side=LEFT, padx=10, pady=10)
 
 
-# OPEN DATABASE
-df = pd.read_csv('users.csv', index_col=0)
-
 # INIT MASTER
 root = Tk()
 root.title('Лист регистрации')  # rename master window
@@ -153,6 +138,8 @@ flag_an, bool_an = create_flag(name=interest_names[5])
 flags = flag_sc, flag_tech, flag_art, flag_tr, flag_sp, flag_an
 booleans_interest = bool_sc, bool_tech, bool_art, bool_tr, bool_sp, bool_an
 
+# DICT FOR DATA
+data_dict = {}
 # BUTTON GET DATA
 but_frame = Frame(master=root)
 # COMMANDS
@@ -168,6 +155,5 @@ buttons_open()
 # OPEN WINDOWS
 root.mainloop()
 
-# CHECK DF
-df = df.drop_duplicates(subset=df.columns[:-2], keep='last')
-df.to_csv('users.csv', index=True)
+file_name = 'users.csv'
+add_in_db(data=data_dict, name=file_name)
