@@ -17,16 +17,20 @@ def collect_data():
     datetime_now = datetime.now()  # get today date
     data_dict['дата регистрации'] = datetime_now.date()  # get date only
 
-    age = (data_dict['дата регистрации'] - data_dict['дата рождения']) / 365.25  # calculate age
-    data_dict['возраст'] = age.days  # days out
+    days_time = data_dict['дата регистрации'] - data_dict['дата рождения']  # calc difference
+    days = days_time.days  # get days
+    age = days / 365.25  # calculate age
+    data_dict['возраст'] = age  # add in dict
 
     if var.get() == 0:
         data_dict['пол'] = 'Мужской'
     elif var.get() == 1:
         data_dict['пол'] = 'Женский'
 
-    interest_list = flags_data()
-    data_dict['интересы'] = ', '.join(interest_list)
+    interest_list = flags_data()  # get interest list
+    sep = ', '  # init separator
+    string_list = sep.join(interest_list)  # concatenate elements
+    data_dict['интересы'] = string_list  # add in dict
 
     # clean_text()
 
@@ -44,11 +48,11 @@ def clean_text():
 def flags_data():
     """Собирает отмеченные интересы"""
     interest_list = []
-    i = 0
+    idx = 0
     while i < len(booleans_interest):
         if booleans_interest[i].get() == 1:
-            interest_list.append(interest_names[i])
-        i += 1
+            interest_list.append(interest_names[idx])
+        idx += 1
 
     return interest_list
 
@@ -99,6 +103,8 @@ def buttons_open():
     but_close.pack(side=LEFT, padx=10, pady=10)
 
 
+# DICT FOR DATA
+data_dict = {}
 # INIT MASTER
 root = Tk()
 root.title('Лист регистрации')  # rename master window
@@ -126,20 +132,19 @@ female = Radiobutton(master=radio_frame, text='Женский', variable=var, va
 interest_frame = Frame(master=root)
 interest_lbl = Label(master=interest_frame, text='Выберите интересы:')
 # INTEREST LIST
-interest_names = 'Наука', 'Техника', 'Икусство', 'Путешествие', 'Спорт', 'Другое'
+interest_names = 'Наука', 'Техника', 'Искусство', 'Путешествие', 'Спорт', 'Другое'
 # CREATE FLAGS
-flag_sc, bool_sc = create_flag(name=interest_names[0])
-flag_tech, bool_tech = create_flag(name=interest_names[1])
-flag_art, bool_art = create_flag(name=interest_names[2])
-flag_tr, bool_tr = create_flag(name=interest_names[3])
-flag_sp, bool_sp = create_flag(name=interest_names[4])
-flag_an, bool_an = create_flag(name=interest_names[5])
-# PACK FLAGS IN VARIABLE
-flags = flag_sc, flag_tech, flag_art, flag_tr, flag_sp, flag_an
-booleans_interest = bool_sc, bool_tech, bool_art, bool_tr, bool_sp, bool_an
 
-# DICT FOR DATA
-data_dict = {}
+flags = []
+booleans_interest = []
+
+i = 0
+while i < len(interest_names):
+    flag_bool = create_flag(name=interest_names[i])
+    flags.append(flag_bool[0])
+    booleans_interest.append(flag_bool[1])
+    i += 1
+
 # BUTTON GET DATA
 but_frame = Frame(master=root)
 # COMMANDS
