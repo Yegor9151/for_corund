@@ -4,7 +4,7 @@ from pprint import pprint
 
 
 def read_token(path) -> str:
-    # https://oauth.vk.com/authorize?client_id=7534970&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=offline,wall&response_type=token&v=5.52
+    # https://oauth.vk.com/authorize?client_id=ID_APP&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=offline,wall&response_type=token&v=5.52
     with open(path, 'r', encoding='utf-8') as f:
         token = f.read()
         return token
