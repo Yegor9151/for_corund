@@ -1,6 +1,5 @@
 from support import *
 from bot import Bot
-from pprint import pprint
 
 # https://oauth.vk.com/authorize?
 # client_id=ID_APP&
@@ -21,8 +20,6 @@ corundum_id = 44273004
 corundum_liker = Bot(token=token, owner_id=corundum_id)
 
 # ССЫЛКА НА JSON СТЕНЫ
-wall_url = corundum_liker.create_url(count=1)
-
-# ОТВЕТ СО СТЕНЫ
-result = get_data(wall_url)
-pprint(result)
+corundum_liker.create_url(count=100)
+corundum_liker.get_data()
+corundum_liker.like()
