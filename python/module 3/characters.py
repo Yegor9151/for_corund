@@ -1,5 +1,7 @@
 import pygame
+
 from weapon import Projectile
+from objects import Object
 
 """
 Данный модуль, содержит в себе такие классы как:
@@ -8,7 +10,7 @@ Player - служащий для создания персонажа.
 """
 
 
-class Character:
+class Character(Object):
     """
     Класс для создания персонажа
 
@@ -18,14 +20,10 @@ class Character:
     place - служит для отрисовки персонажа
     """
 
-    def __init__(self,
-                 parentSurface: pygame.Surface = None,
-                 position: tuple = (100, 100),
-                 size: tuple = (40, 40),
-                 color: tuple = (255, 255, 255),
-                 speed: int = 1,
-                 health: int = 100,
-                 damage: int = 5):
+    def __init__(self, parentSurface: pygame.Surface = None,
+                 img_file: str = None, color: tuple = (255, 255, 255),
+                 size: tuple = (40, 40), position: list = (100, 100),
+                 speed: int = 1, health: int = 100, damage: int = 5):
         """
         Метод для принятия аргументов класса
 
@@ -35,11 +33,9 @@ class Character:
         :parameter speed: скорость персонажа
         :parameter health: здоровье персонажа
         """
-        self.parentSurface = parentSurface  # родительское окно
-        # СКИН ПЕРСОНАЖА
-        self.bodySurface = pygame.Surface(size)  # создание пересонажа
-        self.bodySurface.fill(color)  # заполнение персонажа
-        self.bodyRect = self.bodySurface.get_rect(center=position)
+
+        super().__init__(parentSurface, img_file, position, size, color)
+
         # ПАРАМЕТРЫ
         self.speed = speed
         self.health = health
@@ -86,9 +82,10 @@ class Player(Character):
 
     def attack(self, target):
         projectile = Projectile(self.parentSurface,
-                                position=list(self.bodyRect.center),
+                                img_file='./objects/Fireboll.png',
+                                position=list((self.bodyRect.center[0]-50, self.bodyRect.center[1]-50)),
                                 target=target,
-                                speed=15)
+                                speed=10)
         projectile.trajectory()
 
         return projectile

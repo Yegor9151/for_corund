@@ -1,9 +1,10 @@
 import pygame
 import sys
-from random import randint
+import random
 
 import characters
 from interface import HealthBar
+from objects import Object
 
 """
 Это главный модуль в котором конструируется вся игра
@@ -17,11 +18,16 @@ from interface import HealthBar
 
 # цвета
 BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 
-WIDTH = 800  # ширина родительского окна
-HEIGHT = 600  # высота родительского окна
+WIDTH = 1600  # ширина родительского окна
+HEIGHT = 800  # высота родительского окна
 
 FPS = 60  # кадры в секунду
+
+BG = pygame.image.load('./location/forest.jpg')
+HERO_SKIN = './characters/mage_right.png'
+ENEMY = './characters/mon.png', './characters/enemy_right.png'
 
 # ОСНОВНЫЕ ОБЪЕКТЫ
 parentSurface = pygame.display.set_mode((WIDTH, HEIGHT))  # родительское окно
@@ -31,9 +37,12 @@ clock = pygame.time.Clock()  # четчик FPS
 # ДОПОЛНИТЕЛЬНЫЕ СОБЫТИЯ
 pygame.time.set_timer(pygame.USEREVENT, 2000)
 
+# ФИЗИЧЕСКИЕ ОБЪЕКТЫ
+
 # ПЕРСОНАЖИ
-hero = characters.Player(parentSurface, position=(WIDTH // 2, HEIGHT // 2),
-                         color=(200, 240, 255), size=(40, 40),
+hero = characters.Player(parentSurface,
+                         img_file=HERO_SKIN,
+                         position=[WIDTH // 2, HEIGHT // 2],
                          speed=2, health=100, damage=10)  # главный герой
 
 enemyList = []
@@ -42,14 +51,15 @@ enemyList = []
 def spawn_enemy():
     if event.type == 32774 and len(enemyList) < 5:  # событие произходящее каждые 5 секунд
         enemyList.append(
-            characters.Enemy(parentSurface, position=(randint(0, WIDTH), randint(0, HEIGHT)),
-                             color=(255, 200, 200), size=(40, 40),
+            characters.Enemy(parentSurface,
+                             img_file=random.choice(ENEMY),
+                             position=[random.randint(0, WIDTH), random.randint(0, HEIGHT)],
                              speed=1, health=50, damage=5)
         )  # добавление в список врагов
 
 
 # ИНТЕРФЕЙС
-health_bar = HealthBar(parentSurface, hero, xy=(0, 580))
+health_bar = HealthBar(parentSurface, hero, xy=(50, 750))
 
 
 # ОСНОВНЫЕ ФУНКЦИИ
@@ -117,8 +127,8 @@ def window_barrier():
 
 
 def damage_hero():
-    if enemy.bodyRect.colliderect(hero.bodyRect):
-        hero.health -= enemy.damage
+    if en.bodyRect.colliderect(hero.bodyRect):
+        hero.health -= en.damage
         hero.bodyRect.center = (WIDTH // 2, HEIGHT // 2)
 
 
@@ -126,9 +136,26 @@ def damage_enemy():
     for enemy in enemyList:
         if enemy.bodyRect.collidepoint(proj.position):
             enemy.health -= hero.damage
-            projList.remove(proj)
-            if enemy.health <= 0:
-                enemyList.remove(enemy)
+            try:
+                projList.remove(proj)
+                if enemy.health <= 0:
+                    enemyList.remove(enemy)
+            except ValueError as err:
+                print(err)
+
+
+blocks = [Object(parentSurface, position=[0, HEIGHT-150], size=(WIDTH, 150))]
+
+characterList = None
+
+
+def block_place():
+    for obj in characterList:
+        obj.bodyRect.bottom += 2
+        for block in blocks:
+            # block.place()
+            if block.bodyRect.colliderect(obj.bodyRect):
+                obj.bodyRect.bottom = block.bodyRect.top
 
 
 while True:
@@ -142,7 +169,7 @@ while True:
     # РОДИТЕЛЬСКОЕ ОКНО
     clock.tick(FPS)  # частота обновления кадров
     pygame.display.update()  # обносление кадров
-    parentSurface.fill(BLACK)  # заливка родительского окна
+    parentSurface.blit(BG, (0, 0))  # заливка родительского окна
 
     # ПЕРСОНАЖИ
     # Герой
@@ -150,11 +177,15 @@ while True:
     hero.move()  # перемещение персонажа
 
     # Враги
-    for enemy in enemyList:
-        enemy.place()
+    for en in enemyList:
+        en.place()
         damage_hero()
 
-    # ОБЪЕКТЫ
+    characterList = enemyList + [hero]
+
+    # # ОБЪЕКТЫ
+    block_place()
+
     for proj in projList:
         if parentRect.collidepoint(proj.position):
             proj.place()
