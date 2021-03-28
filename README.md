@@ -4,5 +4,6 @@
   - МК по Java
 
 # python
-  - module1
-  - module2
+  - module 1
+  - module 2
+  - module 3
