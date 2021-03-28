@@ -1,4 +1,4 @@
 Курс по  python
-- рег. лист
-- бот для VK
-- движок на pygame
+- module 1 - рег. лист
+- module 2 - бот для VK
+- module 3 - движок на pygame
