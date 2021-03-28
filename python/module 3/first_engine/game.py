@@ -24,6 +24,10 @@ class Game:
             size=(self.width, self.height)
         )  # родительское окно
 
+    @staticmethod
+    def events():
+        return pygame.event.get()
+
     def close(self, event) -> None:
         if event.type == 256 or (event.type == 768 and event.key == 27):  # если нажал крестик или ESC
             pygame.quit()  # деинициализируем pygame
