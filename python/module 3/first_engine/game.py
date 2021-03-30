@@ -10,7 +10,7 @@ class Game:
     Класс-конструктор, содержит основные методы и переменные для написания игр
     """
 
-    running = True
+    runner = True
 
     def __init__(self, width=400, height=300):
         """
@@ -31,4 +31,4 @@ class Game:
     def close(self, event) -> None:
         if event.type == 256 or (event.type == 768 and event.key == 27):  # если нажал крестик или ESC
             pygame.quit()  # деинициализируем pygame
-            self.running = False  # отключаем цикл
+            self.runner = False  # отключаем цикл
