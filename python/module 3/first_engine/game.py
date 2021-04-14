@@ -9,18 +9,16 @@ class Game:
     """
     Класс-конструктор, содержит основные методы и переменные для написания игр
     """
+    RUNNER = True
 
-    runner = True
-    clock = pygame.time.Clock()  # счетчик FPS
+    __clock = pygame.time.Clock()  # счетчик FPS
 
     def __init__(self, width=400, height=300, color=(0, 0, 0)):
         """
         :parameter width: высота окна
         :parameter height: ширина окна
         """
-        self.width = width
-        self.height = height
-        self.colorSurface = color
+        self.parent_color = color
 
         self.parentSurface = pygame.display.set_mode(
             size=(width, height)
@@ -40,7 +38,7 @@ class Game:
         Метод при вызове которого заливается родительское окно
         :return: None
         """
-        self.parentSurface.fill(self.colorSurface)  # заливаем родительское окно
+        self.parentSurface.fill(self.parent_color)  # заливаем родительское окно
 
     def fps_counter(self, FPS=30) -> None:
         """
@@ -48,9 +46,9 @@ class Game:
         :param FPS: число кадров в секунду
         :return: None
         """
-        self.clock.tick(FPS)
+        self.__clock.tick(FPS)
 
     def close(self, event) -> None:
         if event.type == 256 or (event.type == 768 and event.key == 27):  # если нажал крестик или ESC
             pygame.quit()  # деинициализируем pygame
-            self.runner = False  # отключаем цикл
+            self.RUNNER = False  # отключаем цикл
