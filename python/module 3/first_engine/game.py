@@ -24,6 +24,7 @@ class Game:
             size=(width, height)
         )  # родительское окно
         self.parentSurface.fill(color)
+        self.parentBody = self.parentSurface.get_rect()
 
     @staticmethod
     def display_update():
