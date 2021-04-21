@@ -1,8 +1,7 @@
 """БИБЛЕОТЕКИ"""
 from tkinter import *
-import pandas as pd
 from datetime import datetime
-from scr import str_in_date
+from scr import str_in_date, read_db, add_data
 
 """КОНСТАНТЫ"""
 WIDTH = 350
@@ -107,15 +106,13 @@ def get_data():
     dataDict = {
         'ФИО': name,  # Вытягиваем ФИО
         'Пол': gender,  # вписываем пол
-        'Интересы': [get_interests()],
+        'Интересы': ', '.join(get_interests()), # [интерес1, интерес2]
         'Возраст': ((today - b_date) / 365.25).days,  # расчитываем возраст
         'Дата рождения': b_date,  # Вытягиваем Дату рождения и переводим в тип дата
         'Дата регистрации': today,  # вписываем текущую дату
     }  # Словарь с данными о пользователе
-    print(dataDict)
-
-    df = pd.DataFrame(dataDict)
-    print(df)
+    # print(dataDict)
+    print(add_data(data=dataDict))
 
 
 def get_interests():
