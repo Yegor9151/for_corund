@@ -1,5 +1,3 @@
-// https://metanit.com/java/tutorial/3.14.php
-
 package study;
 
 import javax.swing.*;
@@ -64,7 +62,7 @@ class MyPannel extends JPanel {
 			img = ImageIO.read(new File("./earth.png"));
 		} 
 		catch (IOException exp) {
-			System.out.println("θηξαπΰζενθε νε νΰιδενξ");
+			System.out.println("Γ¨Γ§Γ®Γ‘Γ°Γ Γ¦Γ₯Γ­Γ¨Γ₯ Γ­Γ₯ Γ­Γ Γ©Γ€Γ₯Γ­Γ®");
 		}
 
 		Timer FPS = new Timer(1, new ActionListener() {
