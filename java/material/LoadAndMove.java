@@ -1,45 +1,44 @@
-package study;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import javax.imageio.*;
 
-public class LoadAndMove {
+public class LoadAndMove { // Класс загрузки и управления
 
-	public static void main(String[] args) {
+	public static void main(String[] args) { // главный метод
 
-		new MyFrame();
+		new MyFrame(); // вызов класса
 
 	} // main
 
 } // Program
 
-class MyFrame extends JFrame {
+class MyFrame extends JFrame { // наш класс на основе предка
 
-	public MyFrame() {
+	public MyFrame() { // конструктор класса
 		setBounds(0,0,800,600);
 		setTitle("My first anuimation");
 
-		add(new MyPannel());
+		add(new MyPanel()); // добавление вызванного класса
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // закрытие созданного окна
 		setVisible(true);
 	} // Constructor
 
 } // MyFrame
 
-class MyPannel extends JPanel {
+class MyPanel extends JPanel {
 
 	private Image img;
+	
 	private int x = 0, y = 0;
 	public int direction = 2;
 	int speed = 1;
 
-	private class myKey implements KeyListener {
-		public void keyPressed(KeyEvent e) {
-			int key = e.getKeyCode();
+	private class myKey implements KeyListener { // implements - в нашем классе используем эллементы интерфейса 
+		public void keyPressed(KeyEvent e) { // используем метод класса и дополняем его
+			int key = e.getKeyCode(); // отслеживаем события
 //			System.out.println(key);
 			if(key == 87) direction = 1; //w
 			if(key == 65) direction = 0; //a
@@ -54,27 +53,27 @@ class MyPannel extends JPanel {
 		}
 	}
 
-	public MyPannel() {
-		addKeyListener(new myKey());
+	public MyPanel() {
+		addKeyListener(new myKey()); // добавление отслеживания событий
 		setFocusable(true);
 		
-		try {
+		try { // попытка загрузить картинку
 			img = ImageIO.read(new File("./earth.png"));
 		} 
 		catch (IOException exp) {
-			System.out.println("èçîáðàæåíèå íå íàéäåíî");
+			System.out.println("картинка отсутствует");
 		}
 
-		Timer FPS = new Timer(1, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(direction == 0) x-=speed; //left
-				if(direction == 1) y-=speed; //up
-				if(direction == 2) x+=speed; //right
-				if(direction == 3) y+=speed; //down
-				repaint();
+		Timer FPS = new Timer(1, new ActionListener() { // создание таймера
+			public void actionPerformed(ActionEvent e) { // изменяем представление
+				if(direction == 0) x-= speed; //left
+				if(direction == 1) y-= speed; //up
+				if(direction == 2) x+= speed; //right
+				if(direction == 3) y+= speed; //down
+				repaint(); // заливаем окно
 			} // actionPerformed
 		}); // FPS
-		FPS.start();
+		FPS.start(); // запускаем таймер
 
 	} // Constructor
 
