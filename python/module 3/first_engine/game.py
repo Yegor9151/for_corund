@@ -53,3 +53,13 @@ class Game:
         if event.type == 256 or (event.type == 768 and event.key == 27):  # если нажал крестик или ESC
             pygame.quit()  # деинициализируем pygame
             self.RUNNER = False  # отключаем цикл
+
+    def window_borders(self, obj):
+        if obj.body.bottom > self.parentBody.bottom:
+            obj.body.bottom = self.parentBody.bottom
+        elif obj.body.top < self.parentBody.top:
+            obj.body.top = self.parentBody.top
+        if obj.body.right > self.parentBody.right:
+            obj.body.right = self.parentBody.right
+        elif obj.body.left < self.parentBody.left:
+            obj.body.left = self.parentBody.left
