@@ -22,10 +22,16 @@ class Object:
         self.skin.fill(color=color)
 
     def motion(self):
-        self.body.x += pygame.key.get_pressed()[100] * self.speed
-        self.body.x -= pygame.key.get_pressed()[97] * self.speed
-        self.body.y += pygame.key.get_pressed()[115] * self.speed
-        self.body.y -= pygame.key.get_pressed()[119] * self.speed
+        if sum((pygame.key.get_pressed()[100], pygame.key.get_pressed()[115],
+                pygame.key.get_pressed()[97], pygame.key.get_pressed()[119])) > 1:
+            speed = self.speed / 2
+        else:
+            speed = self.speed
+
+        self.body.x += pygame.key.get_pressed()[100] * speed
+        self.body.x -= pygame.key.get_pressed()[97] * speed
+        self.body.y += pygame.key.get_pressed()[115] * speed
+        self.body.y -= pygame.key.get_pressed()[119] * speed
 
     def change_speed(self, speed):
         self.speed = speed
