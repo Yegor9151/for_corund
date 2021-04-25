@@ -8,7 +8,7 @@ class FirstGame(Game):
 
         draw = False
         w, h = 5, 5
-        brash = Object(parent=self.parentSurface, width=w, height=w)
+        brash = Object(parent=self.surface, width=w, height=w)
 
         while self.RUNNER:
             self.fps_counter(60000)
@@ -20,11 +20,11 @@ class FirstGame(Game):
                 if event.type == 1025:
                     draw = True
                     if event.button == 1:
-                        brash.color = (255, 255, 255)
+                        brash.recolor((255, 255, 255))
                         brash.body.center = event.pos
                         brash.blit()
                     elif event.button == 3:
-                        brash.color = self.parent_color
+                        brash.recolor(self.color)
                         brash.body.center = event.pos
                         brash.blit()
                 elif event.type == 1026:
@@ -39,7 +39,7 @@ class FirstGame(Game):
                     h += event.y
                     if w < 1 or h < 1:
                         w, h = 1, 1
-                    brash = Object(parent=self.parentSurface, width=w, height=h)
+                    brash = Object(parent=self.surface, width=w, height=h)
 
                 if event.type == 768 and event.key == 99:
                     self.window_fill()
