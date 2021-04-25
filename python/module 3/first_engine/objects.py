@@ -22,8 +22,8 @@ class Object:
         self.skin.fill(color=color)
 
     def motion(self):
-        right = pygame.key.get_pressed()[100]
         left = pygame.key.get_pressed()[97]
+        right = pygame.key.get_pressed()[100]
         up = pygame.key.get_pressed()[115]
         down = pygame.key.get_pressed()[119]
 
