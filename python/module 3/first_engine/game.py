@@ -18,13 +18,13 @@ class Game:
         :parameter width: высота окна
         :parameter height: ширина окна
         """
-        self.parent_color = color
+        self.color = color
 
-        self.parentSurface = pygame.display.set_mode(
+        self.surface = pygame.display.set_mode(
             size=(width, height)
         )  # родительское окно
-        self.parentSurface.fill(color)
-        self.parentBody = self.parentSurface.get_rect()
+        self.surface.fill(color)
+        self.body = self.surface.get_rect()
 
     @staticmethod
     def display_update():
@@ -39,7 +39,7 @@ class Game:
         Метод при вызове которого заливается родительское окно
         :return: None
         """
-        self.parentSurface.fill(self.parent_color)  # заливаем родительское окно
+        self.surface.fill(self.color)  # заливаем родительское окно
 
     def fps_counter(self, FPS=30) -> None:
         """
@@ -55,11 +55,11 @@ class Game:
             self.RUNNER = False  # отключаем цикл
 
     def window_borders(self, obj):
-        if obj.body.bottom > self.parentBody.bottom:
-            obj.body.bottom = self.parentBody.bottom
-        elif obj.body.top < self.parentBody.top:
-            obj.body.top = self.parentBody.top
-        if obj.body.right > self.parentBody.right:
-            obj.body.right = self.parentBody.right
-        elif obj.body.left < self.parentBody.left:
-            obj.body.left = self.parentBody.left
+        if obj.body.bottom > self.body.bottom:
+            obj.body.bottom = self.body.bottom
+        elif obj.body.top < self.body.top:
+            obj.body.top = self.body.top
+        if obj.body.right > self.body.right:
+            obj.body.right = self.body.right
+        elif obj.body.left < self.body.left:
+            obj.body.left = self.body.left
