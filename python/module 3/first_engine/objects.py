@@ -6,11 +6,12 @@ class Object:
     def __init__(self, parent: pygame.Surface,
                  width=40, height=40, x=0, y=0,
                  color=(255, 255, 255),
-                 speed=2):
+                 speed=1):
         self.parent = parent
         self.x = x
         self.y = y
         self.color = color
+
         self.speed = speed
 
         self.skin = pygame.Surface(size=(width, height))
@@ -19,10 +20,17 @@ class Object:
 
     def blit(self):
         self.body.topleft = self.x, self.y
-        self.parent.blit(source=self.skin, dest=self.body)
+        return self.parent.blit(source=self.skin, dest=self.body)
 
     def recolor(self, color):
         self.skin.fill(color=color)
+        return color
+
+    def __diagonal_speed(self):
+        speed_xy = (self.speed ** 2 + self.speed ** 2) ** (1 / 2)  # находим длину вектора x + y по пифагору
+        speed_xy = self.speed / speed_xy  # находим долю скорости от суммы векторов
+        speed_xy *= self.speed  # теперь находим скорость по диагонали
+        return speed_xy
 
     def motion(self):
         left = pygame.key.get_pressed()[97]
@@ -30,10 +38,14 @@ class Object:
         up = pygame.key.get_pressed()[115]
         down = pygame.key.get_pressed()[119]
 
-        self.x -= left * self.speed
-        self.x += right * self.speed
-        self.y += up * self.speed
-        self.y -= down * self.speed
+        speed = self.__diagonal_speed() if (left + right + up + down) > 1 else self.speed
+
+        self.x -= left * speed
+        self.x += right * speed
+        self.y += up * speed
+        self.y -= down * speed
+        return speed
 
     def change_speed(self, speed):
         self.speed = speed
+        return speed
