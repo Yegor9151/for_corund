@@ -27,15 +27,10 @@ class Object:
         up = pygame.key.get_pressed()[115]
         down = pygame.key.get_pressed()[119]
 
-        if sum((left, right, up, down)) > 1:
-            speed = self.speed / 2
-        else:
-            speed = self.speed
-
-        self.body.x -= left * speed
-        self.body.x += right * speed
-        self.body.y += up * speed
-        self.body.y -= down * speed
+        self.body.x -= left * self.speed
+        self.body.x += right * self.speed
+        self.body.y += up * self.speed
+        self.body.y -= down * self.speed
 
     def change_speed(self, speed):
         self.speed = speed
