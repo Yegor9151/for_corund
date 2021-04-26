@@ -8,14 +8,17 @@ class Object:
                  color=(255, 255, 255),
                  speed=2):
         self.parent = parent
+        self.x = x
+        self.y = y
         self.color = color
         self.speed = speed
 
         self.skin = pygame.Surface(size=(width, height))
-        self.skin.fill(color=self.color)
+        self.skin.fill(color=color)
         self.body = self.skin.get_rect(topleft=(x, y))
 
     def blit(self):
+        self.body.topleft = self.x, self.y
         self.parent.blit(source=self.skin, dest=self.body)
 
     def recolor(self, color):
@@ -27,10 +30,10 @@ class Object:
         up = pygame.key.get_pressed()[115]
         down = pygame.key.get_pressed()[119]
 
-        self.body.x -= left * self.speed
-        self.body.x += right * self.speed
-        self.body.y += up * self.speed
-        self.body.y -= down * self.speed
+        self.x -= left * self.speed
+        self.x += right * self.speed
+        self.y += up * self.speed
+        self.y -= down * self.speed
 
     def change_speed(self, speed):
         self.speed = speed
