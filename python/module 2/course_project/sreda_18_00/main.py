@@ -1,37 +1,15 @@
-"""
-Структура проекта:
-    main.py, bot.py, scr.py
-"""
+from support import read_file
+from bot import Bot
 
-from sreda_18_00.scr import read_file  # импортируем фуекцию для чтения токена
-from sreda_18_00.bot import Bot  # импортируем класс-конструктор бота
-import requests
-from pprint import pprint
+corund = 44273004
 
-class BotLiker:
-    __GROUP_ID = 44273004  # корунд
-    __token = read_file('F:token.txt')
+# ТОКЕН
+PATH_TO_TOKEN = "F:\\token.txt"
+token = read_file(PATH_TO_TOKEN)
 
-    def run(self):
-
-        bot = Bot(
-            owner_id=self.__GROUP_ID,
-            token=self.__token
-        )  # Создаем бота через наш конструктор
-
-        bot.create_url() # бот - создай ссылку
-        print(bot.full_url)
-
-        data = requests.get(bot.full_url)
-        data = data.json()
-        pprint(data)
-        """
-        из data вытащить:
-            - text
-            - id
-            - user_likes
-        """
-
-
-
-BotLiker().run()
+# БОТ
+bot = Bot(owner_id=corund, token=token)  # создаем бота
+# ДЕЙСТВИЯ БОТА
+url = bot.create_url(count=100)  # бот, создай ссылку
+data = bot.get_data()  # достань данные
+like = bot.like_add()  # поставь лайк
