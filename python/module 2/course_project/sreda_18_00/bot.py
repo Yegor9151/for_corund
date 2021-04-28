@@ -4,9 +4,20 @@ import requests
 
 class Bot:
     base_url = 'https://api.vk.com/method/'
-    method = 'wall.get?'
+    method = {
+        'wall_get': 'wall.get?'
+    }
+    full_url = None
 
-    full_url = base_url + method
+    def __init__(self, owner_id, token):
+        self.base_params = f'owner_id=-{owner_id}&' \
+                           f'access_token={token}&' \
+                           f'v=5.21&'
 
-    answerCode = requests.get(url=full_url)
-    answerJson = answerCode.json()
+    def create_url(self, count=1, offset=0):
+        self.full_url = self.base_url + \
+                        self.method['wall_get'] + \
+                        self.base_params + \
+                        f'count={count}&' \
+                        f'offset={offset}&'
+        return self.full_url
