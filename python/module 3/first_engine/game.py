@@ -54,12 +54,17 @@ class Game:
             pygame.quit()  # деинициализируем pygame
             self.RUNNER = False  # отключаем цикл
 
-    def window_borders(self, obj):
-        if obj.body.bottom > self.body.bottom:
-            obj.body.bottom = self.body.bottom
-        elif obj.body.top < self.body.top:
-            obj.body.top = self.body.top
-        if obj.body.right > self.body.right:
-            obj.body.right = self.body.right
-        elif obj.body.left < self.body.left:
-            obj.body.left = self.body.left
+    def window_borders(self, objects):
+        for obj in objects:
+
+            if obj.body.bottom > self.body.bottom:
+                obj.body.bottom = self.body.bottom
+            elif obj.body.top < self.body.top:
+                obj.body.top = self.body.top
+
+            if obj.body.right > self.body.right:
+                obj.body.right = self.body.right
+            elif obj.body.left < self.body.left:
+                obj.body.left = self.body.left
+
+            obj.y, obj.x = obj.body.y, obj.body.x

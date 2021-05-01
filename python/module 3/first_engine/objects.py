@@ -19,7 +19,6 @@ class Object:
         self.body = self.skin.get_rect(topleft=(x, y))
 
     def blit(self):
-        self.body.topleft = self.x, self.y
         return self.parent.blit(source=self.skin, dest=self.body)
 
     def recolor(self, color):
@@ -33,6 +32,9 @@ class Object:
         return speed_xy
 
     def motion(self):
+        self.body.x, self.body.y = self.x, self.y
+
+    def motion_control(self):
         left = pygame.key.get_pressed()[97]
         right = pygame.key.get_pressed()[100]
         up = pygame.key.get_pressed()[115]
@@ -40,10 +42,12 @@ class Object:
 
         speed = self.__diagonal_speed() if (left + right + up + down) > 1 else self.speed
 
-        self.x -= left * speed
+        self.x -= left * (speed - 1)
         self.x += right * speed
         self.y += up * speed
-        self.y -= down * speed
+        self.y -= down * (speed - 1)
+
+        self.motion()
         return speed
 
     def change_speed(self, speed):
