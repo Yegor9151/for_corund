@@ -37,15 +37,20 @@ class Object:
     def motion_control(self):
         left = pygame.key.get_pressed()[97]
         right = pygame.key.get_pressed()[100]
-        up = pygame.key.get_pressed()[115]
-        down = pygame.key.get_pressed()[119]
+        up = pygame.key.get_pressed()[119]
+        down = pygame.key.get_pressed()[115]
 
         speed = self.__diagonal_speed() if (left + right + up + down) > 1 else self.speed
 
-        self.x -= left * (speed - 1)
         self.x += right * speed
-        self.y += up * speed
-        self.y -= down * (speed - 1)
+        self.y += down * speed
+
+        if speed % 1 != 0:
+            self.x -= left * (speed - 1)
+            self.y -= up * (speed - 1)
+        else:
+            self.x -= left * speed
+            self.y -= up * speed
 
         self.motion()
         return speed
