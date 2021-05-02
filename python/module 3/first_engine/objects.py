@@ -42,15 +42,15 @@ class Object:
 
         speed = self.__diagonal_speed() if (left + right + up + down) > 1 else self.speed
 
-        self.x += right * speed
-        self.y += down * speed
-
         if speed % 1 != 0:
-            self.x -= left * (speed - 1)
-            self.y -= up * (speed - 1)
+            self.x += right * (speed + 1)
+            self.y += down * (speed + 1)
         else:
-            self.x -= left * speed
-            self.y -= up * speed
+            self.x += right * speed
+            self.y += down * speed
+
+        self.x -= left * speed
+        self.y -= up * speed
 
         self.motion()
         return speed
