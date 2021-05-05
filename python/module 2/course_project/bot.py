@@ -53,5 +53,4 @@ class Bot:
                 requests.get(url)
                 print(f'{post["id"]} - лайк поставлен')
                 count += 1
-
         return count
