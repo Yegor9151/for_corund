@@ -12,7 +12,6 @@ class BotLiker(Bot):
         Метод для выполнения последовательности действий
         """
         offsets = range(count // 100) if count % 100 == 0 else range((count // 100) + 1)
-
         for offset in offsets:
             count_now = 100 if offset != offsets[-1] else count - (offsets[-1] * 100)
 
@@ -31,3 +30,8 @@ class BotLiker(Bot):
 
         print(f'\nЧисло проставленных лайков {count_like}')
         return count_like
+
+# BotLiker(
+#     owner_id=44273004,
+#     path_to_token='F:token.txt'
+# ).run(count=123)
