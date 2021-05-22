@@ -11,8 +11,15 @@ class Object:
         self.skin.fill(color=color)
         self.body = self.skin.get_rect(topleft=(x, y))
 
+    def load_sprites(self, path: str):
+        self.skin = pygame.image.load(path)
+        self.body = self.skin.get_rect(topleft=(self.x, self.y))
+        return self.body
+
     def blit(self):
-        return self.parent.blit(source=self.skin, dest=self.body)
+        self.body = self.skin.get_rect(topleft=(self.x, self.y))
+        self.parent.blit(source=self.skin, dest=self.body)
+        return self.parent
 
     def recolor(self, color):
         self.skin.fill(color=color)
@@ -25,6 +32,7 @@ class Object:
             self.y = y
         self.body.x = self.x
         self.body.y = self.y
+        return self.body.x, self.body.y
 
 
 class Character(Object):
@@ -52,7 +60,7 @@ class Character(Object):
         self.y += down * (speed + 1) if speed % 1 != 0 else down * speed
 
         self.replace()
-        return -left * speed, right * speed, -up * speed, down * speed
+        return {'left': -left * speed, 'right': right * speed, 'up': -up * speed, 'down': down * speed}
 
     def change_speed(self, speed):
         self.speed = speed
