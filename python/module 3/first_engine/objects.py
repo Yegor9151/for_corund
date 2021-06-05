@@ -1,17 +1,45 @@
+"""
+Модуль для создания объектов типа:
+Character - класс для создания персонажей
+Barrier - класс для создания непроходимых препятствий
+"""
+
 import pygame
 import os
 
 
 class Object:
+    """
+    Основной класс на основе которого строятся другие классы, представляющие разные типы объектов
+    Содержит в себе основные методы для управление всеми объектами
+    :var sprites: Dict - сохраняет спрайты созданного на его основе объекта
+    :var last_action: str - информация о последнем действии объекта
+    :var time_to_sprite_update: int - вряме до смены спрайта, если предполагается анимация
+    :var sprite_id: int - индекс спрайта
+    """
     sprites = {}
     last_action = 'right'
     time_to_sprite_update = 6
     sprite_id = 0
+    drop_speed = 1
 
-    def __init__(self, parent: pygame.Surface, width=40, height=40, x=0, y=0, color=(255, 255, 255)):
+    def __init__(self, parent: pygame.Surface, width=40, height=40, x=0, y=0, color: tuple = (255, 255, 255)):
+        """
+        Метод для построения объекта
+        :param parent: pygame.Surface - родимтельское окно
+        :param width: int
+        :param height: int
+        :param x: int
+        :param y: int
+        :param color: tuple - цвет в RGB
+        :var skin: pygame.Surface - скин объекта - по умолчанию
+        :var body: Rect - тело объекта - по умолчанию
+        """
         self.parent = parent
         self.x, self.y = x, y
         self.color = color
+        self.width = width
+        self.height = height
 
         self.skin = pygame.Surface(size=(width, height))
         self.skin.fill(color=color)
@@ -19,25 +47,21 @@ class Object:
 
     def load_sprites(self, name: str, path: str):
         """
-        Метод для загрузки скинов и созданния тел
+        Метод для загрузки спрайтов в sprites
         :param name: str - имя под которым будем хранить загруженные скины и созданные тела
         :param path: str - путь до папки с файлами
-        :return skin_body: dict - возвращаем только что загруженные скины и созданные тела
+        :return skins: dict - возвращаем только что загруженные скины и созданные тела
         """
         path = path if path[-1] == '/' else path + '/'
 
-        skin = [pygame.image.load(path + i) for i in os.listdir(path)]
-        self.sprites[name] = skin
-        return skin
-
-    def remake_for_skin(self, name, idx=0):
-        self.skin = self.sprites[name][idx]
-        self.body = self.skin.get_rect(topleft=(self.x, self.y))
+        skins = [pygame.image.load(path + i) for i in os.listdir(path)]
+        self.sprites[name] = skins
+        return skins
 
     def sprite_update(self, name, time_update=6):
         """
         Метод обновляющий спрайты по очереди
-        :param name: str - принимает имя спрайтов похраненных в словарь sprites
+        :param name: str - принимает имя спрайтов сохраненных в словаре sprites
         :param time_update: int - принимает время до смены спрайта на новый
         :return: int - возвращает id текущего спрайта
         """
@@ -49,51 +73,77 @@ class Object:
                 self.sprite_id = 0
         return self.sprite_id
 
+    def remake_for_skin(self, name: str, idx: int = 0):
+        """
+        Метод для переделывания скина и тела по индексу скина и его названия в sprites
+        :param name: str название скинов
+        :param idx: int индекс
+        :return: pygame.Surface
+        """
+        self.skin = self.sprites[name][idx]
+        self.body = self.skin.get_rect(topleft=(self.body.x, self.body.y))
+        self.x, self.y = self.body.x, self.body.y
+        self.width = self.body.width
+        self.height = self.body.height
+        return self.skin
+
     def blit(self):
+        """
+        Метод для отображения объекта
+        :return: pygame.Surface
+        """
         self.parent.blit(source=self.skin, dest=self.body)
         return self.parent
 
     def recolor(self, color):
+        """
+        Метод для сметы цвета
+        :return: RGB
+        """
         self.skin.fill(color=color)
         return color
 
-    def replace(self, x=None, y=None):
-        if x:
-            self.x = x
-        if y:
-            self.y = y
-        self.body.x = round(self.x) if round(self.x) > 0 else 1
-        self.body.y = round(self.y) if round(self.y) > 0 else 1
-        return self.body.x, self.body.y
+    def drop(self, speed_up=1, max_speed=15):
+        """
+        Падение персонажа
+        :return: int положение тела
+        """
+        self.body.y += self.drop_speed
+        if self.drop_speed < max_speed:
+            self.drop_speed += speed_up
+        return self.drop_speed
 
 
 class Character(Object):
-    def __init__(self, parent: pygame.Surface, width=40, height=40, x=0, y=0, color=(255, 255, 255), speed=1):
+    """
+    Класс для создания персонажей
+    """
+    def __init__(self, parent: pygame.Surface, width=40, height=40, x=0, y=0, color=(255, 255, 255),
+                 speed=1, height_jump=20):
+        """
+        :param parent: pygame.Surface - родимтельское окно
+        :param width: int
+        :param height: int
+        :param x: int
+        :param y: int
+        :param color: tuple - цвет в RGB
+        :param speed: int - скорость персонажа
+        """
         super().__init__(parent, width, height, x, y, color)
         self.speed = speed
+        self.height_jump = height_jump
 
-    def __diagonal_speed(self):
-        speed_xy = (self.speed ** 2 + self.speed ** 2) ** (1 / 2)  # находим длину вектора x + y по пифагору
-        speed_xy = self.speed / speed_xy  # находим долю скорости от суммы векторов
-        speed_xy *= self.speed  # теперь находим скорость по диагонали
-        return speed_xy
-
-    def __motion_control(self):
-        left = pygame.key.get_pressed()[97]
-        right = pygame.key.get_pressed()[100]
-        up = pygame.key.get_pressed()[119]
-        down = pygame.key.get_pressed()[115]
-
-        speed = self.__diagonal_speed() if (left + right + up + down) > 1 else self.speed
-        sides = {'left': -left * speed, 'right': right * speed,
-                 'up': -up * speed, 'down': down * speed}
-        return sides
-
-    def motion_left(self, sprites_active=None, sprite_inactive=None, time_to_update=6):
-        left = self.__motion_control()['left']
+    def motion_left(self, sprites_active: str = None, sprite_inactive: str = None, time_to_update: int = 6):
+        """
+        Метод для движения влево, можно подключить загруженные спрайты
+        :param sprites_active: имя спрайтов движения
+        :param sprite_inactive: имя спрайтов дездействия
+        :param time_to_update: время до смены спрайта
+        :return: int - скорость
+        """
+        left = pygame.key.get_pressed()[97] * self.speed
         if left:
-            self.x += left
-            self.replace()
+            self.body.x -= left
             self.last_action = 'left'
             if sprites_active:
                 self.sprite_update(name=sprites_active, time_update=time_to_update)
@@ -104,10 +154,16 @@ class Character(Object):
         return left
 
     def motion_right(self, sprites_active=None, sprite_inactive=None, time_to_update=6):
-        right = self.__motion_control()['right']
+        """
+        Метод для движения вправо, можно подключить загруженные спрайты
+        :param sprites_active: имя спрайтов движения
+        :param sprite_inactive: имя спрайтов дездействия
+        :param time_to_update: время до смены спрайта
+        :return: int - скорость
+        """
+        right = pygame.key.get_pressed()[100] * self.speed
         if right:
-            self.x += right
-            self.replace()
+            self.body.x += right
             self.last_action = 'right'
             if sprites_active:
                 self.sprite_update(name=sprites_active, time_update=time_to_update)
@@ -118,10 +174,16 @@ class Character(Object):
         return right
 
     def motion_up(self, sprites_active=None, sprite_inactive=None, time_to_update=6):
-        up = self.__motion_control()['up']
+        """
+        Метод для движения вверх, можно подключить загруженные спрайты
+        :param sprites_active: имя спрайтов движения
+        :param sprite_inactive: имя спрайтов дездействия
+        :param time_to_update: время до смены спрайта
+        :return: int - скорость
+        """
+        up = pygame.key.get_pressed()[119] * self.speed
         if up:
-            self.y += up
-            self.replace()
+            self.body.y -= up
             self.last_action = 'up'
             if sprites_active:
                 self.sprite_update(name=sprites_active, time_update=time_to_update)
@@ -132,10 +194,16 @@ class Character(Object):
         return up
 
     def motion_down(self, sprites_active=None, sprite_inactive=None, time_to_update=6):
-        down = self.__motion_control()['down']
+        """
+        Метод для движения вниз, можно подключить загруженные спрайты
+        :param sprites_active: имя спрайтов движения
+        :param sprite_inactive: имя спрайтов дездействия
+        :param time_to_update: время до смены спрайта
+        :return: int - скорость
+        """
+        down = pygame.key.get_pressed()[115] * self.speed
         if down:
-            self.y += down
-            self.replace()
+            self.body.y += down
             self.last_action = 'down'
             if sprites_active:
                 self.sprite_update(name=sprites_active, time_update=time_to_update)
@@ -145,17 +213,37 @@ class Character(Object):
             self.remake_for_skin(name=sprite_inactive, idx=self.sprite_id)
         return down
 
-    def change_speed(self, speed):
-        self.speed = speed
-        return speed
+    def action_jump(self):
+        if self.y == self.body.y and self.drop_speed != 1:
+            self.drop_speed = 1
+            if pygame.key.get_pressed()[32]:
+                self.drop_speed = -self.height_jump
+        self.y = self.body.y
 
 
 class Barrier(Object):
+    """
+    Класс для создания непроходимых объектов
+    """
+
     def __init__(self, parent: pygame.Surface, objects: list, width=40, height=40, x=0, y=0, color=(255, 255, 255)):
+        """
+        :param parent: pygame.Surface - родимтельское окно
+        :param objects:
+        :param width: int
+        :param height: int
+        :param x: int
+        :param y: int
+        :param color: tuple - цвет в RGB
+        """
         super().__init__(parent, width, height, x, y, color)
         self.objects = objects
 
     def resistance(self):
+        """
+        Метод, который отвечает за препятствывание передвижения
+        :return: boolean - есть сопротивление или нету
+        """
         for obj in self.objects:
             collision = self.body.colliderect(obj.body)
             if collision:
@@ -175,6 +263,4 @@ class Barrier(Object):
                     obj.body.bottom = self.body.top
                 elif 'bottom' in min_dip:
                     obj.body.top = self.body.bottom
-
-                return collision
-        return 0
+                return min_dip

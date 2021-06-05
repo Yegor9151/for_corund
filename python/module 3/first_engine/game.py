@@ -65,24 +65,22 @@ class Game:
             pygame.quit()  # деинициализируем pygame
             self.RUNNER = False  # отключаем цикл
 
-    def window_borders(self, objects: list) -> None:
+    def window_borders(self, objects: list):
         """
         Метод для ограничения передвижения объектов в паределах экрана
         :param objects: список объектов, которые будет ограничены экраном
-        :return None:
+        :return sides: dict
         """
         for obj in objects:
-            if obj.body.bottom > self.body.bottom:
-                obj.body.bottom = self.body.bottom
-            elif obj.body.top < self.body.top:
-                obj.body.top = self.body.top
-
-            if obj.body.right > self.body.right:
-                obj.body.right = self.body.right
-            elif obj.body.left < self.body.left:
+            if obj.body.left < self.body.left:
                 obj.body.left = self.body.left
+            elif obj.body.right > self.body.right:
+                obj.body.right = self.body.right
 
-            obj.y, obj.x = obj.body.y, obj.body.x
+            if obj.body.top < self.body.top:
+                obj.body.top = self.body.top
+            elif obj.body.bottom > self.body.bottom:
+                obj.body.bottom = self.body.bottom
 
     def cycle_init(self, objects: list = None, FPS: int = 60) -> None:
         """
