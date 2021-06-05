@@ -1,28 +1,47 @@
 from first_engine.game import Game
-from first_engine.objects import Character, Barrier
+from first_engine import objects
+import pygame
 
 
 class FirstGame(Game):
     def run(self):
-        char = Character(self.surface, speed=4)
-        wall = Barrier(self.surface, objects=[char],
-                       width=200, height=200,
-                       x=100, y=100, color=(255, 200, 200))
+        hero = objects.Character(self.surface, speed=8)
+        hero.load_sprites(name='stand_right', path='./sprites/viking/stand/right')
+        hero.load_sprites(name='stand_left', path='./sprites/viking/stand/left')
+        hero.load_sprites(name='run_left', path='./sprites/viking/run/left')
+        hero.load_sprites(name='run_right', path='./sprites/viking/run/right')
+
+        wall = objects.Barrier(self.surface, objects=[hero], width=200, height=50, x=300, y=450)
 
         game_over = False
         while self.RUNNER:
             if not game_over:
-                self.cycle_init(objects=[char])
+                self.cycle_init(FPS=60)
 
-                char.motion_control()
-                char.blit()
-
-                wall.resistance()
+                # Объекты
+                hero.blit()
                 wall.blit()
+
+                # проверяем - уперся ли персонаж в преграду
+                self.window_borders([wall, hero])
+                wall.resistance()
+
+                # Движения персонажа
+                hero.motion_left(sprites_active='run_left', sprite_inactive='stand_left', time_to_update=6)
+                hero.motion_right(sprites_active='run_right', sprite_inactive='stand_right', time_to_update=6)
+                # роняем персонажа
+                hero.drop(speed_up=1, max_speed=20)
+
+                # проверяем - уперся ли персонаж в преграду
+                self.window_borders([hero])
+                wall.resistance()
+
+                # если да, то даем ему возможность прыгать
+                hero.action_jump()
 
             for event in self.events():
                 # print(event)  # отслеживание событий
                 self.close(event)
 
 
-FirstGame(width=600, height=400).run()
+FirstGame(width=800, height=600).run()
