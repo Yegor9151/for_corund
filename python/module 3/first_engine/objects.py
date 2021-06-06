@@ -18,9 +18,13 @@ class Object:
     :var sprite_id: int - индекс спрайта
     """
     sprites = {}
-    last_action = 'right'
+
     time_to_sprite_update = 6
     sprite_id = 0
+
+    action = None
+    actions = {}
+
     drop_speed = 1
 
     def __init__(self, parent: pygame.Surface, width=40, height=40, x=0, y=0, color: tuple = (255, 255, 255)):
@@ -44,48 +48,6 @@ class Object:
         self.skin = pygame.Surface(size=(width, height))
         self.skin.fill(color=color)
         self.body = self.skin.get_rect(topleft=(x, y))
-
-    def load_sprites(self, name: str, path: str):
-        """
-        Метод для загрузки спрайтов в sprites
-        :param name: str - имя под которым будем хранить загруженные скины и созданные тела
-        :param path: str - путь до папки с файлами
-        :return skins: dict - возвращаем только что загруженные скины и созданные тела
-        """
-        path = path if path[-1] == '/' else path + '/'
-
-        skins = [pygame.image.load(path + i) for i in os.listdir(path)]
-        self.sprites[name] = skins
-        return skins
-
-    def sprite_update(self, name, time_update=6):
-        """
-        Метод обновляющий спрайты по очереди
-        :param name: str - принимает имя спрайтов сохраненных в словаре sprites
-        :param time_update: int - принимает время до смены спрайта на новый
-        :return: int - возвращает id текущего спрайта
-        """
-        self.time_to_sprite_update -= 1
-        if self.time_to_sprite_update == 0:
-            self.sprite_id += 1
-            self.time_to_sprite_update = time_update
-            if self.sprite_id == len(self.sprites[name]):
-                self.sprite_id = 0
-        return self.sprite_id
-
-    def remake_for_skin(self, name: str, idx: int = 0):
-        """
-        Метод для переделывания скина и тела по индексу скина и его названия в sprites
-        :param name: str название скинов
-        :param idx: int индекс
-        :return: pygame.Surface
-        """
-        self.skin = self.sprites[name][idx]
-        self.body = self.skin.get_rect(topleft=(self.body.x, self.body.y))
-        self.x, self.y = self.body.x, self.body.y
-        self.width = self.body.width
-        self.height = self.body.height
-        return self.skin
 
     def blit(self):
         """
@@ -113,11 +75,56 @@ class Object:
             self.drop_speed += speed_up
         return self.drop_speed
 
+    def load_sprites(self, name: str, path: str, update: int = 6):
+        """
+        Метод для загрузки спрайтов в sprites
+        :param update: частота обновления спрайта
+        :param name: str - имя под которым будем хранить загруженные скины и созданные тела, необходимые именя:
+        run_left, run_right, stand_left, stand_right, jump_left, jum_right, attack_left, attack_right
+        :param path: str - путь до папки с файлами
+        :return skins: dict - возвращаем только что загруженные скины и созданные тела
+        """
+        skins = [pygame.image.load(path + i) for i in os.listdir(path)]
+
+        self.sprites[name] = {'skins': skins, 'update': update}
+        return skins
+
+    def __sprite_update(self, name):
+        """
+        Метод обновляющий спрайты по очереди
+        :param name: str - принимает имя спрайтов сохраненных в словаре sprites
+        :return: int - возвращает id текущего спрайта
+        """
+        self.time_to_sprite_update -= 1
+        if self.time_to_sprite_update == 0:
+            self.sprite_id += 1
+            self.time_to_sprite_update = self.sprites[name]['update']
+            if self.sprite_id == len(self.sprites[name]['skins']):
+                self.sprite_id = 0
+        return self.sprite_id
+
+    def __remake_for_skin(self, name: str):
+        """
+        Метод для переделывания скина и тела по индексу скина и его названия в sprites
+        :param name: str название скинов
+        :return: pygame.Surface
+        """
+        self.skin = self.sprites[name]['skins'][self.sprite_id]
+        self.body = self.skin.get_rect(topleft=(self.body.x, self.body.y))
+        return self.skin
+
+    def play_animation(self):
+        print(self.actions)
+        print(self.action)
+        self.__sprite_update(self.action)
+        self.__remake_for_skin(self.action)
+
 
 class Character(Object):
     """
     Класс для создания персонажей
     """
+
     def __init__(self, parent: pygame.Surface, width=40, height=40, x=0, y=0, color=(255, 255, 255),
                  speed=1, height_jump=20):
         """
@@ -133,91 +140,74 @@ class Character(Object):
         self.speed = speed
         self.height_jump = height_jump
 
-    def motion_left(self, sprites_active: str = None, sprite_inactive: str = None, time_to_update: int = 6):
+        self.action = 'stand_right'
+
+    def __motions(self):
+        left = pygame.key.get_pressed()[97]
+        right = pygame.key.get_pressed()[100]
+        up = pygame.key.get_pressed()[119]
+        down = pygame.key.get_pressed()[115]
+        jump = pygame.key.get_pressed()[32]
+
+        stand = not(left + right + up + down + jump)
+        if stand and 'left' in self.action:
+            self.action = 'stand_left'
+        elif stand and 'right' in self.action:
+            self.action = 'stand_right'
+
+        self.actions = {'left': left, 'right': right, 'up': up, 'down': down, 'jump': jump, 'default': stand}
+
+        return self.actions
+
+    def motion_left(self):
         """
         Метод для движения влево, можно подключить загруженные спрайты
-        :param sprites_active: имя спрайтов движения
-        :param sprite_inactive: имя спрайтов дездействия
-        :param time_to_update: время до смены спрайта
         :return: int - скорость
         """
-        left = pygame.key.get_pressed()[97] * self.speed
+        left = self.__motions()['left']
         if left:
-            self.body.x -= left
-            self.last_action = 'left'
-            if sprites_active:
-                self.sprite_update(name=sprites_active, time_update=time_to_update)
-                self.remake_for_skin(name=sprites_active, idx=self.sprite_id)
-        elif sprite_inactive and not left and self.last_action == 'left':
-            self.sprite_update(name=sprite_inactive, time_update=time_to_update)
-            self.remake_for_skin(name=sprite_inactive, idx=self.sprite_id)
+            self.body.x -= left * self.speed
+            self.action = 'run_left'
         return left
 
-    def motion_right(self, sprites_active=None, sprite_inactive=None, time_to_update=6):
+    def motion_right(self):
         """
         Метод для движения вправо, можно подключить загруженные спрайты
-        :param sprites_active: имя спрайтов движения
-        :param sprite_inactive: имя спрайтов дездействия
-        :param time_to_update: время до смены спрайта
         :return: int - скорость
         """
-        right = pygame.key.get_pressed()[100] * self.speed
+        right = self.__motions()['right']
         if right:
-            self.body.x += right
-            self.last_action = 'right'
-            if sprites_active:
-                self.sprite_update(name=sprites_active, time_update=time_to_update)
-                self.remake_for_skin(name=sprites_active, idx=self.sprite_id)
-        elif sprite_inactive and not right and self.last_action == 'right':
-            self.sprite_update(name=sprite_inactive, time_update=time_to_update)
-            self.remake_for_skin(name=sprite_inactive, idx=self.sprite_id)
+            self.body.x += right * self.speed
+            self.action = 'run_right'
         return right
 
-    def motion_up(self, sprites_active=None, sprite_inactive=None, time_to_update=6):
+    def motion_up(self):
         """
         Метод для движения вверх, можно подключить загруженные спрайты
-        :param sprites_active: имя спрайтов движения
-        :param sprite_inactive: имя спрайтов дездействия
-        :param time_to_update: время до смены спрайта
         :return: int - скорость
         """
-        up = pygame.key.get_pressed()[119] * self.speed
+        up = self.__motions()['up']
         if up:
-            self.body.y -= up
-            self.last_action = 'up'
-            if sprites_active:
-                self.sprite_update(name=sprites_active, time_update=time_to_update)
-                self.remake_for_skin(name=sprites_active, idx=self.sprite_id)
-        elif sprite_inactive and not up and self.last_action == 'up':
-            self.sprite_update(name=sprite_inactive, time_update=time_to_update)
-            self.remake_for_skin(name=sprite_inactive, idx=self.sprite_id)
+            self.body.y -= up * self.speed
         return up
 
-    def motion_down(self, sprites_active=None, sprite_inactive=None, time_to_update=6):
+    def motion_down(self):
         """
         Метод для движения вниз, можно подключить загруженные спрайты
-        :param sprites_active: имя спрайтов движения
-        :param sprite_inactive: имя спрайтов дездействия
-        :param time_to_update: время до смены спрайта
         :return: int - скорость
         """
-        down = pygame.key.get_pressed()[115] * self.speed
+        down = self.__motions()['down']
         if down:
-            self.body.y += down
-            self.last_action = 'down'
-            if sprites_active:
-                self.sprite_update(name=sprites_active, time_update=time_to_update)
-                self.remake_for_skin(name=sprites_active, idx=self.sprite_id)
-        elif sprite_inactive and not down and self.last_action == 'down':
-            self.sprite_update(name=sprite_inactive, time_update=time_to_update)
-            self.remake_for_skin(name=sprite_inactive, idx=self.sprite_id)
+            self.body.y += down * self.speed
         return down
 
     def action_jump(self):
         if self.y == self.body.y and self.drop_speed != 1:
             self.drop_speed = 1
-            if pygame.key.get_pressed()[32]:
+            if self.__motions()['jump']:
                 self.drop_speed = -self.height_jump
+        else:
+            print(True)
         self.y = self.body.y
 
 
