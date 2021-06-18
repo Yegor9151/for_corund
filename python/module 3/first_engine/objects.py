@@ -114,8 +114,6 @@ class Object:
         return self.skin
 
     def play_animation(self):
-        print(self.actions)
-        print(self.action)
         self.__sprite_update(self.action)
         self.__remake_for_skin(self.action)
 
@@ -149,13 +147,16 @@ class Character(Object):
         down = pygame.key.get_pressed()[115]
         jump = pygame.key.get_pressed()[32]
 
-        stand = not(left + right + up + down + jump)
+        stand = not (left + right + up + down + jump)
         if stand and 'left' in self.action:
             self.action = 'stand_left'
         elif stand and 'right' in self.action:
             self.action = 'stand_right'
 
-        self.actions = {'left': left, 'right': right, 'up': up, 'down': down, 'jump': jump, 'default': stand}
+        self.actions = {'left': left * self.speed, 'right': right * self.speed,
+                        'up': up * self.speed, 'down': down * self.speed,
+                        'jump': jump,
+                        'default': stand}
 
         return self.actions
 
@@ -166,7 +167,7 @@ class Character(Object):
         """
         left = self.__motions()['left']
         if left:
-            self.body.x -= left * self.speed
+            self.body.x -= left
             self.action = 'run_left'
         return left
 
@@ -177,7 +178,7 @@ class Character(Object):
         """
         right = self.__motions()['right']
         if right:
-            self.body.x += right * self.speed
+            self.body.x += right
             self.action = 'run_right'
         return right
 
@@ -188,7 +189,7 @@ class Character(Object):
         """
         up = self.__motions()['up']
         if up:
-            self.body.y -= up * self.speed
+            self.body.y -= up
         return up
 
     def motion_down(self):
@@ -198,7 +199,7 @@ class Character(Object):
         """
         down = self.__motions()['down']
         if down:
-            self.body.y += down * self.speed
+            self.body.y += down
         return down
 
     def action_jump(self):
@@ -206,8 +207,6 @@ class Character(Object):
             self.drop_speed = 1
             if self.__motions()['jump']:
                 self.drop_speed = -self.height_jump
-        else:
-            print(True)
         self.y = self.body.y
 
 

@@ -10,12 +10,16 @@ class Game:
     """
     RUNNER = True
     __clock = pygame.time.Clock()  # счетчик FPS
+    __back_ground = None
+    __bg_body = None
 
     def __init__(self, width: int = 400, height: int = 300, color: tuple = (0, 0, 0)):
         """
         :param width: высота окна
         :param height: ширина окна
         """
+        self.width = width
+        self.height = height
         self.color = color
 
         self.surface = pygame.display.set_mode(
@@ -23,6 +27,13 @@ class Game:
         )  # родительское окно
         self.surface.fill(color)
         self.body = self.surface.get_rect()
+
+    def load_bg(self, path, x=None, y=None):
+        x = x if x else 0
+        y = y if y else self.height
+
+        self.__back_ground = pygame.image.load(path)
+        self.__bg_body = self.__back_ground.get_rect(bottomleft=(x, y))
 
     @staticmethod
     def display_update() -> None:
@@ -97,4 +108,18 @@ class Game:
         if objects:
             self.window_borders(objects=objects)
         self.display_update()
-        self.window_fill()
+        self.surface.blit(self.__back_ground, dest=self.__bg_body) if self.__back_ground else self.window_fill()
+
+    def __window_motion(self, bg_speed: int, objects: list, object_speed: int):
+        self.__bg_body.x += bg_speed
+        for obj in objects:
+            obj.body.x += object_speed
+
+    def window_motion(self, char, bg_speed: int, objects: list, object_speed: int):
+
+        if char.body.right > 500 and self.__bg_body.right > self.width:
+            char.body.right = 500
+            self.__window_motion(bg_speed=bg_speed, objects=objects, object_speed=object_speed)
+        elif char.body.left < 300 and self.__bg_body.left < 0:
+            char.body.left = 300
+            self.__window_motion(bg_speed=bg_speed, objects=objects, object_speed=object_speed)
