@@ -28,8 +28,7 @@ class Game:
         self.surface.fill(color)
         self.body = self.surface.get_rect()
 
-    def load_bg(self, path, x=None, y=None):
-        x = x if x else 0
+    def load_bg(self, path, x=0, y=None):
         y = y if y else self.height
 
         self.__back_ground = pygame.image.load(path)
@@ -110,16 +109,16 @@ class Game:
         self.display_update()
         self.surface.blit(self.__back_ground, dest=self.__bg_body) if self.__back_ground else self.window_fill()
 
-    def __window_motion(self, bg_speed: int, objects: list, object_speed: int):
+    def __bg_motion(self, bg_speed: int, objects: list, object_speed: int):
         self.__bg_body.x += bg_speed
         for obj in objects:
             obj.body.x += object_speed
 
-    def window_motion(self, char, bg_speed: int, objects: list, object_speed: int):
+    def bg_motion(self, char, bg_speed: int, objects: list, object_speed: int):
 
-        if char.body.right > 500 and self.__bg_body.right > self.width:
-            char.body.right = 500
-            self.__window_motion(bg_speed=bg_speed, objects=objects, object_speed=object_speed)
-        elif char.body.left < 300 and self.__bg_body.left < 0:
-            char.body.left = 300
-            self.__window_motion(bg_speed=bg_speed, objects=objects, object_speed=object_speed)
+        if char.body.right > self.width//2 + 100 and self.__bg_body.right > self.width:
+            char.body.right = self.width//2 + 100
+            self.__bg_motion(bg_speed=bg_speed, objects=objects, object_speed=object_speed)
+        elif char.body.left < self.width//2 - 100 and self.__bg_body.left < 0:
+            char.body.left = self.width//2 - 100
+            self.__bg_motion(bg_speed=bg_speed, objects=objects, object_speed=object_speed)
