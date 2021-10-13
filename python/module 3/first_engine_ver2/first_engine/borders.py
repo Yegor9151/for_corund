@@ -1,5 +1,4 @@
 from .objects import Object
-import pygame
 
 
 class Border(Object):
@@ -7,7 +6,7 @@ class Border(Object):
     def __init__(self, width=40, height=40, color=(255, 255, 255), x=10, y=10):
         super().__init__(width, height, color, x, y)
 
-    def resistance(self, objs: list) -> list[str]:
+    def resistance(self, objs):
         for obj in objs:
             if self.rect.colliderect(obj.rect):
                 resist_sides = {

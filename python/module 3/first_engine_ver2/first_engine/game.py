@@ -4,7 +4,7 @@ import pygame
 class Game:
 
     def __init__(self, size=(600, 400)):
-        self.size = size
+        self.w, self.h = size
         self.surface = pygame.display.set_mode(size)
         self.__clock = pygame.time.Clock()
 
@@ -30,7 +30,7 @@ class Game:
                 obj.rect.x = 0
             if obj.rect.y < 0:
                 obj.rect.y = 0
-            if obj.rect.x > self.size[0] - obj.width:
-                obj.rect.x = self.size[0] - obj.width
-            if obj.rect.y > self.size[1] - obj.height:
-                obj.rect.y = self.size[1] - obj.height
+            if obj.rect.x > self.w - obj.width:
+                obj.rect.x = self.w - obj.width
+            if obj.rect.y > self.h - obj.height:
+                obj.rect.y = self.h - obj.height
