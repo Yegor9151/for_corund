@@ -1,19 +1,22 @@
 from first_engine.game import Game
 from first_engine.characters import Character
 from first_engine.borders import Border
+
 import pygame
+import os
 
 
 class MyGame(Game):
 
     def run(self):  # рабочая область
 
-        stand_right = pygame.image.load('./viking/stand/right/1.png')
-        run_right = pygame.image.load('./viking/run/right/1.png')
+        char = Character()  # создаем перса
 
-        x, y, width, height = stand_right.get_rect()
+        run = './viking/run/right/'
+        run = [pygame.image.load(run + img) for img in os.listdir(run)]  # загружаете нужный спрайт
 
-        char = Character(x, y, width, height, speed=4)
+        time_to_sprite_update = 10
+        sprite_id = 0
 
         while True:
 
@@ -21,15 +24,17 @@ class MyGame(Game):
             self.display_update()
             self.surface.fill((0, 0, 0))
 
-            right = char.motion()
+            sides = char.motion()
+            print(sides)  # отслеживаете направление
 
-            # char.blit(self.surface)
-            if right:
-                self.surface.blit(run_right, char.rect)
-                char.rebuild(rect=run_right.get_rect())
-            else:
-                self.surface.blit(stand_right, char.rect)
-                char.rebuild(rect=stand_right.get_rect())
+            self.surface.blit(run[sprite_id], dest=(0, 0))  # АНИМАЦИЯ
+
+            time_to_sprite_update -= 1
+            if time_to_sprite_update == 0:
+                time_to_sprite_update = 10
+                sprite_id += 1
+                if sprite_id == len(run):
+                    sprite_id = 0
 
             for event in self.get_events():
                 self.close(event)
