@@ -11,9 +11,14 @@ class Character(Object):
     def motion(self, speed=None):
         speed = speed if speed else self.speed
 
-        self.rect.x += pygame.key.get_pressed()[100] * speed
-        self.rect.x -= pygame.key.get_pressed()[97] * speed
-        self.rect.y += pygame.key.get_pressed()[115] * speed
-        self.rect.y -= pygame.key.get_pressed()[119] * speed
+        right = pygame.key.get_pressed()[100]
+        left = pygame.key.get_pressed()[97]
+        up = pygame.key.get_pressed()[119]
+        down = pygame.key.get_pressed()[115]
 
-        return pygame.key.get_pressed()[100] * speed
+        self.rect.x += right * speed
+        self.rect.x -= left * speed
+        self.rect.y -= up * speed
+        self.rect.y += down * speed
+
+        return right, left, up, down
