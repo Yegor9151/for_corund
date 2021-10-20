@@ -4,9 +4,8 @@ import pygame
 
 class Character(Object):
 
-    def __init__(self, width=40, height=40, color=(255, 255, 255), x=10, y=10, speed=1):
-        super().__init__(width, height, color, x, y)
-
+    def __init__(self, x=10, y=10, width=40, height=40, color=(255, 255, 255), speed=1):
+        super().__init__(x, y, width, height, color)
         self.speed = speed
 
     def motion(self, speed=None):
@@ -16,3 +15,5 @@ class Character(Object):
         self.rect.x -= pygame.key.get_pressed()[97] * speed
         self.rect.y += pygame.key.get_pressed()[115] * speed
         self.rect.y -= pygame.key.get_pressed()[119] * speed
+
+        return pygame.key.get_pressed()[100] * speed

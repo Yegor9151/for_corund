@@ -3,8 +3,8 @@ from .objects import Object
 
 class Border(Object):
 
-    def __init__(self, width=40, height=40, color=(255, 255, 255), x=10, y=10):
-        super().__init__(width, height, color, x, y)
+    def __init__(self, x=10, y=10, width=40, height=40, color=(255, 255, 255)):
+        super().__init__(x, y, width, height, color)
 
     def resistance(self, objs):
         for obj in objs:
@@ -28,4 +28,3 @@ class Border(Object):
                     obj.rect.top = self.rect.bottom
 
                 return min_deep
-

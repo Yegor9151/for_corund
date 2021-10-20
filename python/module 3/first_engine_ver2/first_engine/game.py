@@ -30,7 +30,7 @@ class Game:
                 obj.rect.x = 0
             if obj.rect.y < 0:
                 obj.rect.y = 0
-            if obj.rect.x > self.w - obj.width:
-                obj.rect.x = self.w - obj.width
-            if obj.rect.y > self.h - obj.height:
-                obj.rect.y = self.h - obj.height
+            if obj.rect.right > self.w:
+                obj.rect.right = self.w
+            if obj.rect.bottom > self.h:
+                obj.rect.bottom = self.h
