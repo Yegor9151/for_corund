@@ -8,17 +8,32 @@ class Character(Object):
         super().__init__(x, y, width, height, color)
         self.speed = speed
 
-    def motion(self, speed=None):
-        speed = speed if speed else self.speed
+        self.action = 'stand_right'
+
+    def motion(self):
 
         right = pygame.key.get_pressed()[100]
         left = pygame.key.get_pressed()[97]
         up = pygame.key.get_pressed()[119]
         down = pygame.key.get_pressed()[115]
+        jump = pygame.key.get_pressed()[32]
 
-        self.rect.x += right * speed
-        self.rect.x -= left * speed
-        self.rect.y -= up * speed
-        self.rect.y += down * speed
+        stand = (left + right + up + down + jump) == 0
 
-        return right, left, up, down
+        if stand and 'left' in self.action:
+            self.action = 'stand_left'
+        elif stand and 'right' in self.action:
+            self.action = 'stand_right'
+
+        self.actions = {'left': left, 'right': right, 'up': up, 'down': down,
+                        'jump': jump, 'default': stand}
+
+        return self.actions
+
+    def motion_right(self):
+        right = self.motion()['right']
+        if right:
+            self.rect.x += right * self.speed
+            self.action = 'run_right'
+
+        return right
