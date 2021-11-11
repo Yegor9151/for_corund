@@ -7,6 +7,7 @@ class Border(Object):
         super().__init__(x, y, width, height, color)
 
     def resistance(self, objs):
+        min_deep = []
         for obj in objs:
             if self.rect.colliderect(obj.rect):
                 resist_sides = {
@@ -27,4 +28,4 @@ class Border(Object):
                 if 'bottom' in min_deep:
                     obj.rect.top = self.rect.bottom
 
-                return min_deep
+        return min_deep

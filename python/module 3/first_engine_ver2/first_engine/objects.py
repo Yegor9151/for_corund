@@ -22,8 +22,9 @@ class Object:
     def load_sprite(self, name: str, path: str, update: int = 6):
         """метод для загрузки спрайтов"""
         spriteList = [pygame.image.load(path + name) for name in os.listdir(path)]
-        self.spritesDict[name] = {'spriteList': spriteList, 'updateConst': update, 'update': update}
-
+        self.spritesDict[name] = {'spriteList': spriteList,
+                                  'updateConst': update,
+                                  'update': update}
         return spriteList
 
     def sprite_update(self, name: str):

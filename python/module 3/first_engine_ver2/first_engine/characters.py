@@ -37,3 +37,18 @@ class Character(Object):
             self.action = 'run_right'
 
         return right
+
+    def motion_left(self):
+        left = self.motion()['left']
+        if left:
+            self.rect.x -= left * self.speed
+            self.action = 'run_left'
+
+        return left
+
+    def jump(self, rsides: list, gravitation=20, start_jump_speed=20):
+
+        if 'top' in rsides and pygame.key.get_pressed()[32]:
+            gravitation = -start_jump_speed
+
+        return gravitation

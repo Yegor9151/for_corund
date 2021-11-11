@@ -1,19 +1,16 @@
 from first_engine.game import Game
 from first_engine.characters import Character
 from first_engine.borders import Border
-import pygame
 
 
 class MyGame(Game):
 
     def run(self):  # рабочая область
 
-        stand_right = pygame.image.load('./viking/stand/right/1.png')
-        run_right = pygame.image.load('./viking/run/right/1.png')
-
-        x, y, width, height = stand_right.get_rect()
-
-        char = Character(x, y, width, height, speed=4)
+        char = Character(speed=4)  # создаем перса
+        char.load_sprite(name='run_right', path='./viking/run/right/', update=6)
+        char.load_sprite(name='run_left', path='./viking/run/left/', update=6)
+        char.load_sprite(name='stand_right', path='./viking/stand/right/', update=6)
 
         while True:
 
@@ -21,15 +18,9 @@ class MyGame(Game):
             self.display_update()
             self.surface.fill((0, 0, 0))
 
-            right = char.motion()
-
-            # char.blit(self.surface)
-            if right:
-                self.surface.blit(run_right, char.rect)
-                char.rebuild(rect=run_right.get_rect())
-            else:
-                self.surface.blit(stand_right, char.rect)
-                char.rebuild(rect=stand_right.get_rect())
+            char.motion_right()
+            char.play_animation()
+            char.blit(self.surface)
 
             for event in self.get_events():
                 self.close(event)
