@@ -2,11 +2,25 @@ from .objects import Object
 
 
 class Border(Object):
+    """Класс для создания препятствий или платформ"""
 
     def __init__(self, x=10, y=10, width=40, height=40, color=(255, 255, 255)):
+        """
+        Конструктор для инициализации препятствия
+        :param x: местоположение
+        :param y: местоположение
+        :param width: габариты
+        :param height: габариты
+        :param color: цвет
+        """
         super().__init__(x, y, width, height, color)
 
     def resistance(self, objs):
+        """
+        Метод дря пятствующий пересечению объектов
+        :param objs: список объектов
+        :return: сторона с которой объект колизирует с припятствием
+        """
         min_deep = []
         for obj in objs:
             if self.rect.colliderect(obj.rect):
