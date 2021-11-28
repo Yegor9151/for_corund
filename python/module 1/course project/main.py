@@ -1,176 +1,92 @@
-# ГРУППА - СРЕДА В 18.00
-
-# библотеки + модули
-from tkinter import *  # GUI
+from tkinter import *
 from datetime import datetime
-from scripts import *
-from pprint import pprint
+from util import *
 
 
-def get_data():
-    name = ent_name.get()
-    # name = 'Сорокин ЕЛ'
+# ЛОГИКА
+def save():
+    # name.insert(0, 'Sorokin YL')
+    # date.insert(0, '29/01/1991')
 
-    b_date = ent_date.get()  # вытаскиваем из Entry дату рождения
-    # b_date = '12/12/2000'
+    bdate = date.get()
 
-    b_date = str_to_date(b_date)
-    now_date = datetime.now().date()
-    age = ((now_date - b_date) / 365.25).days
+    asd = [interests_list[idx] for idx in range(len(interesting)) if interesting[idx].get()]
 
-    if radio_var.get() == 0:
-        gender = 'мужской'
-    else:
-        gender = 'женский'
+    today = datetime.now().date()  # сегодняшняя дата и время
+    bdate = str_to_date(bdate)  # дата рождения
 
-    # словарь для данных
-    dataDict = {'ФИО': name,
-                'Дата рождения': b_date,
-                'Дата регистрации': now_date,
-                'Возраст': age,
-                'Пол': gender,
-                'Интересы': get_interests()}
+    data = {
+        "имя": name.get(),
+        "дата рождения": bdate,
+        "пол": "М" if gender_value.get() else "Ж",
+        "интересы": asd,
+        "дата регистрации": today,
+        "возраст": ((today - bdate) / 365.25).days
+    }
 
-    pprint(dataDict)
-
-    add_db(file='users.csv', data=dataDict)
-
-    ent_name.delete(first=0, last=END)  # Entry
-    ent_date.delete(first=0, last=END)  # Entry
-
-    idx = 0
-    while idx < len(interests_varList):
-        interests_varList[idx].set(0)
-        idx += 1
+    path = "./users.csv"
+    df = read_db(path)
+    df = rewrite_db(df, data)
+    save_db(df, path)
 
 
-def get_interests():
-    """Это функция собирает ответы пользователя с флагов интересов
-    и возвращает спок имен отмеченных интересов"""
-    interestsList = []
-
-    idx = 0
-    while idx < len(interests_varList):
-        if interests_varList[idx].get():
-            interestsList.append(interest_names[idx])
-        idx += 1
-
-    return interestsList
+def clear_data():
+    name.delete(0, END)
+    date.delete(0, END)
 
 
-# БАЗОВЫЕ ПЕРЕМЕННЫЕ
-# РОДИТЕЛЬСКОЕ ОКНО
+# ОСНОВНЫЕ ПЕРЕМЕННЫЕ
+WIDTH = 400
+HEIGHT = 350
 root = Tk()
+
 root.title('Регистрационный лист')
+root.geometry(f'{WIDTH}x{HEIGHT}')
+root.resizable(False, False)
 
-# ФРЕЙМ ДЛЯ ФИО И ДАТА РОЖДЕНИЯ
-text_frame = Frame(master=root)
+# ФИО и ДАТА РОЖДЕНИЯ
+name_dateF = Frame(padx=10, pady=10)
+Label(master=name_dateF, text='Введите ФИО:').grid(sticky=E, row=0, column=0)
+Label(master=name_dateF, text='Введите дату рождения:').grid(sticky=E, row=1, column=0)
+name = Entry(master=name_dateF, width=40)
+date = Entry(master=name_dateF, width=40)
 
-# ФИО
-lbl_name = Label(master=text_frame, text='Введите свое ФИО:')
-ent_name = Entry(master=text_frame)  # собирает ФИО
+name.grid(row=0, column=1)
+date.grid(row=1, column=1)
+name_dateF.pack(anchor=W)
 
-# ДАТА РОЖДЕНИЯ
-lbl_date = Label(master=text_frame, text='Введите дату рождения:')
-ent_date = Entry(master=text_frame)  # собирает дату рождения
+# ВЫБОР ПОЛА
+genderF = Frame(padx=10, pady=10)
+gender_value = BooleanVar(value=True)  # проверить если True
 
+Label(master=genderF, text='Ваш пол:').pack(anchor=W)
+Radiobutton(master=genderF, text='Мужской', variable=gender_value, value=True).pack(side=LEFT)
+Radiobutton(master=genderF, text='Женский', variable=gender_value, value=False).pack(side=LEFT)
+genderF.pack(anchor=W)
 
-def open_text():
-    # Фрейм
-    text_frame.pack(side=TOP, anchor=W, pady=10, padx=10)
-    # ФИО
-    lbl_name.grid(row=0, column=0, sticky=E)
-    ent_name.grid(row=0, column=1, sticky=W)
-    # Дата рождения
-    lbl_date.grid(row=1, column=0, sticky=E)
-    ent_date.grid(row=1, column=1, sticky=W)
+# ВЫБОР ИНТЕРЕСОВ
+interestsF = Frame(padx=10, pady=10)
+interests_list = ['компьютерные игры', 'чипушествия', 'мультики', 'спорт', 'другое']
 
+Label(master=interestsF, text='Выберите интересы:').pack(anchor=W)
 
-# ФРЕЙМ ДЛЯ ВЫБОР ПОЛА
-gender_frame = Frame(master=root)
-lbl_gender = Label(master=gender_frame, text='Ваш пол:')
+interesting = []
+for i in interests_list:
+    interest_value = BooleanVar()
+    # onvalue, offvalue
+    Checkbutton(master=interestsF, text=i, variable=interest_value).pack(anchor=W)
+    interesting.append(interest_value)
 
-# РАДИОКНОПКИ
-radio_var = IntVar()
-radio_var.set(0)
+interestsF.pack(anchor=W)
 
-male_radio = Radiobutton(master=gender_frame, text='Мужчина',
-                         variable=radio_var, value=0)
-female_radio = Radiobutton(master=gender_frame, text='Женщина',
-                           variable=radio_var, value=1)
+# SAVE & DELETE & CLOSE
+buttonsF = Frame(padx=10, pady=10)
+Button(master=buttonsF, bg='#E0FFDC', width=8, text='save', command=save).pack(side=LEFT)
+Button(master=buttonsF, bg='#DCFFFD', width=8, text='delete', command=clear_data).pack(side=LEFT, padx=2)
+Button(master=buttonsF, bg='#FFE9DC', width=8, text='close', command=root.destroy).pack(side=LEFT)
+buttonsF.pack(side=BOTTOM, anchor=E)
 
-
-def open_radio():
-    # Фрейм
-    gender_frame.pack(side=TOP, anchor=W, padx=10)
-    # "Ваш пол"
-    lbl_gender.pack(side=TOP, anchor=W)
-    # Радиокнопки - выбор пола
-    male_radio.pack(side=LEFT, anchor=W)
-    female_radio.pack(side=LEFT, anchor=W)
-
-
-# ФРЕЙМ ДЛЯ ИНТЕРЕСОВ
-flag_frame = Frame(master=root, bg='#ffccff')
-lbl_flag = Label(master=flag_frame, text='Выберите интересы:')
-
-interest_names = 'Наука', 'Техника', 'Иcкусство', \
-                 'Путешествие', 'Спорт', 'Другое'
-
-
-def create_interest(name):
-    var = BooleanVar()
-    but = Checkbutton(master=flag_frame, text=name,
-                      variable=var, onvalue=1, offvalue=0)
-    return but, var
-
-
-interests_buttonList = []
-interests_varList = []
-
-idx = 0
-while idx < len(interest_names):
-    interestBut, interestVar = create_interest(
-        name=interest_names[idx]  # первый объект 0 - Наука
-    )
-    interests_buttonList.append(interestBut)
-    interests_varList.append(interestVar)
-    idx += 1
-
-
-def open_interests():
-    """создание флажков интересов"""
-    flag_frame.pack(side=TOP, anchor=W, padx=10, pady=10)
-    lbl_flag.pack(side=TOP, anchor=W)  # Выюерите интересы
-
-    # перебираем список заролектированных флажков
-    idx = 0
-    while idx < len(interests_buttonList):
-        interests_buttonList[idx].pack(side=TOP, anchor=W)
-        idx += 1
-
-
-# ФРЕЙМ ДЛЯ КНОПОК SAVE & CLOSE
-but_frame = Frame(master=root)
-enter = Button(master=but_frame, text='Enter',
-               bg='#cbffc3', width=10, command=get_data)
-close = Button(master=but_frame, text='Close',
-               bg='#ffcccb', width=10, command=root.destroy)
-
-
-def open_buttons():
-    but_frame.pack(side=TOP, anchor=E, padx=10, pady=10)
-    enter.pack(side=LEFT, anchor=W, padx=10)
-    close.pack(side=LEFT, anchor=W)
-
-
-# РАЗВЕРТКИ
-open_text()
-open_radio()
-open_interests()
-open_buttons()
-
-# родительское окно
+# ЗАПУСК ПРОГИ
 root.mainloop()
 
-read_file('users.csv')
+df = read_db("./users.csv")
