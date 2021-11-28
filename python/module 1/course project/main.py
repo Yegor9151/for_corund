@@ -88,5 +88,3 @@ buttonsF.pack(side=BOTTOM, anchor=E)
 
 # ЗАПУСК ПРОГИ
 root.mainloop()
-
-df = read_db("./users.csv")
