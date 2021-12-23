@@ -1,15 +1,15 @@
-import javax.swing.JFrame;
+import javax.swing.*;
 
-class MyFrame extends JFrame {
 
-    public MyFrame() {
+public class MyFrame extends JFrame {
+
+    MyFrame() {
 
         add(new MyPanel());
 
-        setBounds(0, 0, 800, 600);
-        setTitle("Управление приложением с помошью мыши");
+        setTitle("Управлепние приложением с помошью мыши");
+        setBounds(0, 0, 900, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setFocusable(true);
         setVisible(true);
     }
 }
