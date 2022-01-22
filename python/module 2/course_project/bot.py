@@ -1,55 +1,72 @@
+from itertools import count
 import requests
 
 
-class Bot:
-    base_url = 'https://api.vk.com/method/'
-    methods = {'wall_get': 'wall.get?',
-               'likes_add': 'likes.add?'}
+class VkBot:
 
-    full_url = None  # заполнится поле create_url
-    data_list = []  # здесь храним информацию о постах
+    def __init__(self, token, owner_id) -> None:
+        self.token = token
+        self.owner_id = owner_id
+    
+    def url_to_wall(self, count=100, offset=0) -> str:
+        """
+        Создает ссылку до стены в vk.com
 
-    def __init__(self, owner_id, token):
-        self.base_params = f'owner_id=-{owner_id}&' \
-                           f'access_token={token}&' \
-                           f'v=5.21&'
+        Params:
+            count: число постов
+            offset: сколько постов пропустить
+        """
+        
+        wall = f"https://api.vk.com/method/wall.get?" + \
+                    f"access_token={self.token}&" + \
+                    f"owner_id=-{self.owner_id}&" + \
+                    f"v=5.81&" + \
+                    f"count={count}&" + \
+                    f"offset={offset}&"
 
-    def create_url(self, count=1, offset=0):
-        self.full_url = self.base_url + \
-                        self.methods['wall_get'] + \
-                        self.base_params + \
-                        f'count={count}&' \
-                        f'offset={offset}&'
-        return self.full_url
+        return wall
 
-    def get_data(self):
-        data = requests.get(self.full_url)
-        data = data.json()
+    def get_wall(self, count=100, offset=0):
+        wall = self.url_to_wall(count, offset)
+        wall = requests.get(wall)
+        wall = wall.json()
+
         try:
-            data = data['response']['items']
-            for post in data:
-                data_dict = {'text': post['text'],
-                             'id': post['id'],
-                             'like': post['likes']['user_likes']}
-                self.data_list.append(data_dict)
-            return self.data_list
+            wall = wall["response"]['items']
+
+            self.posts = []
+            for post in wall:
+                post = {"id": post["id"],
+                        "text": post["text"],
+                        "like": post["likes"]["user_likes"]}
+
+                self.posts.append(post)
+            
+            return self.posts
+
         except KeyError:
-            error = data['error']['error_msg']
-            return error
+            return wall["error"]["error_msg"]
+
+    def url_to_like(self, post_id):
+        url = f"https://api.vk.com/method/likes.add?" + \
+              f"access_token={self.token}&" + \
+              f"owner_id=-{self.owner_id}&" + \
+              f"v=5.81&" + \
+              f"type=post&" + \
+              f"item_id={post_id}&"
+
+        return url
 
     def add_likes(self):
-        count = 0  # счетчик лайков
-        for post in self.data_list:
+        count = 0
+        for post in self.posts:
             if post['like']:
-                print(f"Для {post['id']} лайк уже был поставлен")
+                print(f"Для поста - {post['id']} лайк уже был поставлен")
             else:
-                url = self.base_url + \
-                      self.methods['likes_add'] + \
-                      self.base_params + \
-                      f"type=post&" \
-                      f"item_id={post['id']}&"
-
+                url = self.url_to_like(post['id'])
                 requests.get(url)
-                print(f'{post["id"]} - лайк поставлен')
+                print(f"{post['id']} - лайк поставлен")
                 count += 1
+
         return count
+
