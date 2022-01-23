@@ -1,37 +1,21 @@
-from scr import read_file  # импортируем фуекцию для чтения токена
-from bot import Bot  # импортируем класс-конструктор бота
+import utils
 from pprint import pprint
+from bot import VkBot
 
+# ПОЛУЧЕНИЕ ТОКЕНА
+URL_TO_TOKEN = utils.generate_token(client_id=1234567)
+PATH_TO_TOKEN = "E:\\token.txt"
 
-class BotLiker(Bot):
-    def __init__(self, owner_id, path_to_token):
-        super().__init__(owner_id, token=read_file(path_to_token))
+# НАСТРОЙКИ
+TOKEN = utils.get_token(PATH_TO_TOKEN)
+OWNER_ID = 44273004
+COUNT = 100
+OFFSET = 0
 
-    def run(self, count=1):  # pipline
-        """
-        Метод для выполнения последовательности действий
-        """
-        offsets = range(count // 100) if count % 100 == 0 else range((count // 100) + 1)
-        for offset in offsets:
-            count_now = 100 if offset != offsets[-1] else count - (offsets[-1] * 100)
+# ССЫЛКА ДО СТЕНЫ
+bot = VkBot(TOKEN, OWNER_ID)
+data = bot.get_wall(5, OFFSET)
+like = bot.add_likes()
 
-            url = self.create_url(count=count_now, offset=offset * 100)  # бот - создай ссылку
-            data = self.get_data()  # бот - достань данные
-
-            print(f'\nСсылка до постов:\n{url}')
-
-            if type(data) == str:
-                print(data)
-            else:
-                print(f'\nСостояние данных:\n')
-                pprint(data)
-
-        count_like = self.add_likes()  # бот - поставь лайки
-
-        print(f'\nЧисло проставленных лайков {count_like}')
-        return count_like
-
-# BotLiker(
-#     owner_id=44273004,
-#     path_to_token='F:token.txt'
-# ).run(count=123)
+pprint(data)
+print(like)
