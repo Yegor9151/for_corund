@@ -1,72 +1,85 @@
-from itertools import count
+"""
+В этом модуле проектируем класс бота
+"""
 import requests
 
 
 class VkBot:
+    # Свойства
+    __BASE_URL = "https://api.vk.com/method/"
 
-    def __init__(self, token, owner_id) -> None:
-        self.token = token
+    # Методы
+    def __init__(self, v: float = 5.81):
+        # Конструктор
+        self.v = v
+
+    def user_settings(self, access_token: str, owner_id: int):
+        self.access_token = access_token
         self.owner_id = owner_id
-    
-    def url_to_wall(self, count=100, offset=0) -> str:
+
+    def url_to_wall(self, posts=1, offset=0):
         """
-        Создает ссылку до стены в vk.com
-
-        Params:
-            count: число постов
-            offset: сколько постов пропустить
+        Создает ссылку до постов со стены
+        example:
+        URL = f"https://api.vk.com/method/wall.get?" \
+              f"access_token={TOKEN}&" \
+              f"v=5.81&" \
+              f"owner_id=44273004&" \
+              f"count=100&" \
+              f"offset=0&"
+        :param offset: сколько постов пропустить
+        :param posts: число постов
+        Доступные методы сохраняются зараннее в свойстве класса methods
+        :return: url
         """
-        
-        wall = f"https://api.vk.com/method/wall.get?" + \
-                    f"access_token={self.token}&" + \
-                    f"owner_id=-{self.owner_id}&" + \
-                    f"v=5.81&" + \
-                    f"count={count}&" + \
-                    f"offset={offset}&"
+        url = f"{self.__BASE_URL}wall.get?" \
+              f"v={self.v}&" \
+              f"access_token={self.access_token}&" \
+              f"owner_id={self.owner_id}&" \
+              f"count={posts}&" \
+              f"offset={offset}&"
+        return url
 
-        return wall
+    def parse_wall(self, url):
+        """
+        Собирает данные с постов
+        :param url: ссылка до постов
+        :return: словарь {id, text, like}
+        """
+        req = requests.get(url)  # response 200
+        req = req.json()  # большой словарь со ВСЕМИ данными
 
-    def get_wall(self, count=100, offset=0):
-        wall = self.url_to_wall(count, offset)
-        wall = requests.get(wall)
-        wall = wall.json()
+        posts = []
+        items = req["response"]["items"]
+        for item in items:
+            idx = item["id"]
+            text = item["text"]
+            user_likes = item["likes"]["user_likes"]
 
-        try:
-            wall = wall["response"]['items']
+            post_info = {"id": idx,
+                         "text": text,
+                         "like": user_likes}
 
-            self.posts = []
-            for post in wall:
-                post = {"id": post["id"],
-                        "text": post["text"],
-                        "like": post["likes"]["user_likes"]}
+            posts.append(post_info)
 
-                self.posts.append(post)
-            
-            return self.posts
-
-        except KeyError:
-            return wall["error"]["error_msg"]
+        return posts
 
     def url_to_like(self, post_id):
-        url = f"https://api.vk.com/method/likes.add?" + \
-              f"access_token={self.token}&" + \
-              f"owner_id=-{self.owner_id}&" + \
-              f"v=5.81&" + \
-              f"type=post&" + \
-              f"item_id={post_id}&"
+        """
+        Собирает команда серверу на постановку лайка под постом
+        :param post_id: идентификатор поста
+        :return: ссылка для отправки команды
+        """
+        url = f"{self.__BASE_URL}likes.add?" \
+              f"v={self.v}&" \
+              f"access_token={self.access_token}&" \
+              f"owner_id={self.owner_id}&" \
+              f"type=post&" \
+              f"item_id={post_id}"
 
         return url
 
-    def add_likes(self):
-        count = 0
-        for post in self.posts:
-            if post['like']:
-                print(f"Для поста - {post['id']} лайк уже был поставлен")
-            else:
-                url = self.url_to_like(post['id'])
-                requests.get(url)
-                print(f"{post['id']} - лайк поставлен")
-                count += 1
-
-        return count
-
+    def like_add(self, url):
+        req = requests.get(url)  # response 200
+        req = req.json()  # большой словарь со ВСЕМИ данными
+        return req

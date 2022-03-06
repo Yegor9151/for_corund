@@ -1,39 +1,46 @@
-from course_project.main import BotLiker
 from tkinter import *
-from tkinter import messagebox
+import main
 
 root = Tk()
-root.title('Бот - Лайкер')
-root.resizable(False, False)
+
+user_frame = Frame()
+user_frame.pack()
+
+Label(user_frame, text="Path to token").grid(column=0, row=0)
+Label(user_frame, text="Owner id").grid(column=0, row=1)
+Label(user_frame, text="Post count").grid(column=0, row=2)
+
+token_path = Entry(user_frame)
+owner_id = Entry(user_frame)
+past_count = Entry(user_frame)
+
+token_path.grid(column=1, row=0)
+owner_id.grid(column=1, row=1)
+past_count.grid(column=1, row=2)
 
 
-def create_line(text='Сдесь чет по красивее', row=0, column=0, default=None):
-    Label(text=text).grid(row=row, column=column)
-    data = Entry()
-    if default:
-        data.insert(0, default)
-    data.grid(row=row, column=column + 1)
-    return data.get()
+def close():
+    root.destroy()
+    raise SystemExit
 
 
-owner_id = create_line(text='Введите Id странички в VK:',
-                       row=0, column=0, default='44273004')
-
-post_count = create_line(text='Введите число постов:',
-                         row=1, column=0, default='1')
-
-path_to_token = create_line(text='Введите путь до токена:',
-                            row=2, column=0, default='F:token.txt')
+def clear():
+    token_path.delete(0, END)
+    owner_id.delete(0, END)
+    past_count.delete(0, END)
 
 
-def run():
-    likes = BotLiker(
-        owner_id=owner_id, path_to_token=path_to_token).run(count=int(post_count))
-
-    messagebox.showinfo(
-        title='Отчет о работе', message=f'Число поставленных лайков {likes}')
-
-
-Button(text='Погнали!', command=run).grid(row=3, column=1)
+Button(text="Close", command=close).pack(side=RIGHT)
+Button(text="Clear", command=clear).pack(side=RIGHT)
+Button(text="Start", command=lambda: main.run(
+    path=token_path.get(),
+    owner_id=int(owner_id.get()),
+    posts=int(past_count.get())
+)).pack(side=RIGHT)
 
 root.mainloop()
+
+"""
+E:\\token.txt
+44273004
+"""

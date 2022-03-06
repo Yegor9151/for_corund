@@ -1,36 +1,35 @@
-def generate_token(client_id, display="page", scope="wall", v=5.21):
-    """
-    Принимает id приложения созданного в vk.com и возвращает 
-    ключ доступа (токен) для общения с сервером
+"""
+В этом модуле хранятся удобные утилиты
+"""
 
-    Params:
-        client_id: id приложения
-        display: тип отображения (page - форма авторизации в отдельном окне, 
-                                  popup - всплывающее окно, 
-                                  mobile - авторизация для мобильных устройств)
-        scope: права доступа (все варианты: https://dev.vk.com/reference/access-rights)
-    """
 
-    url = f"https://oauth.vk.com/authorize?" + \
-          f"client_id={client_id}&" + \
-          f"display={display}&" + \
-          f"redirect_uri=https://oauth.vk.com/blank.html&" + \
-          f"scope={scope}&" + \
-          f"response_type=token&" + \
-          f"v={v}&"
+def generate_token(client_id):
+    """
+    Эта фунция создает ссылку до токена
+
+    :param client_id: id приложения в vk.com
+    :return: ссылка
+    """
+    url = f"https://oauth.vk.com/authorize?" \
+          f"client_id={client_id}&" \
+          f"display=page&" \
+          f"redirect_uri=https://oauth.vk.com/blank.html&" \
+          f"scope=wall,offline&" \
+          f"response_type=token&" \
+          f"v=5.81&"
 
     return url
 
 
-def get_token(file):
+def read_token(path):
     """
-    Берет токен из файла
+    Функция для чтения токена (файла)
 
-    Params:
-        file: путь до файла
+    :param path: путь до файла
+    :return: содержимое файла
     """
     try:
-        with open(file=file, mode="r", encoding="utf-8") as file:
+        with open(file=path, mode="r", encoding="utf-8") as file:
             return file.read()
-    except FileNotFoundError:
-        print("Путь до токена не найден")
+    except FileNotFoundError as e:
+        print(f"Путь не найден: {e}")
